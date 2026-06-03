@@ -11,7 +11,18 @@ class JadwalController extends Controller
     public function index()
     {
         $jadwals = Jadwal::with('lab')
-            ->orderBy('hari')
+            ->orderByRaw("
+                FIELD(
+                    hari,
+                    'Senin',
+                    'Selasa',
+                    'Rabu',
+                    'Kamis',
+                    'Jumat',
+                    'Sabtu'
+                )
+            ")
+            ->orderBy('jam_mulai')
             ->get();
 
         return view('jadwal.index', compact('jadwals'));
@@ -27,38 +38,49 @@ class JadwalController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'lab_id' => 'required',
-            'hari' => 'required',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
-            'mata_pelajaran' => 'required',
-            'guru' => 'required',
-            'kelas' => 'required'
+            'lab_id'          => 'required|exists:labs,id',
+            'hari'            => 'required',
+            'jam_mulai'       => 'required',
+            'jam_selesai'     => 'required|after:jam_mulai',
+            'mata_pelajaran'  => 'required',
+            'guru'            => 'required',
+            'kelas'           => 'required',
         ]);
 
+        // Cek bentrok jadwal
         $conflict = Jadwal::where('lab_id', $request->lab_id)
-    ->where('hari', $request->hari)
-    ->where(function ($query) use ($request) {
+            ->where('hari', $request->hari)
+            ->where(function ($query) use ($request) {
 
-        $query->where('jam_mulai', '<', $request->jam_selesai)
-              ->where('jam_selesai', '>', $request->jam_mulai);
+                $query->where('jam_mulai', '<', $request->jam_selesai)
+                      ->where('jam_selesai', '>', $request->jam_mulai);
 
-    })
-    ->exists();
+            })
+            ->exists();
 
-    if ($conflict) {
+        if ($conflict) {
 
-    return back()
-        ->withInput()
-        ->withErrors([
-            'jadwal' => 'Jadwal bentrok dengan jadwal yang sudah ada.'
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'jadwal' => 'Jadwal bentrok dengan jadwal yang sudah ada.'
+                ]);
+        }
+
+        Jadwal::create([
+            'lab_id'         => $request->lab_id,
+            'hari'           => $request->hari,
+            'jam_mulai'      => $request->jam_mulai,
+            'jam_selesai'    => $request->jam_selesai,
+            'mata_pelajaran' => $request->mata_pelajaran,
+            'guru'           => $request->guru,
+            'kelas'          => $request->kelas,
+            'semester'       => $request->semester,
+            'tahun_ajaran'   => $request->tahun_ajaran,
         ]);
-}
-
-        Jadwal::create($request->all());
 
         return redirect()
             ->route('jadwal.index')
-            ->with('success', 'Jadwal berhasil ditambahkan');
+            ->with('success', 'Jadwal berhasil ditambahkan.');
     }
 }

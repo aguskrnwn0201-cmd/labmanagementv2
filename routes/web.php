@@ -7,12 +7,20 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\LabController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BookingController;
+
 
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 
+Route::get('/', [DashboardController::class, 'index'])
+    ->name('dashboard');
+
 Route::get('/guru', [GuruController::class, 'dashboard'])
     ->name('guru.dashboard');
+
+Route::resource('booking', BookingController::class);
 
 Route::get('/siswa', [SiswaController::class, 'dashboard'])
     ->name('siswa.dashboard');

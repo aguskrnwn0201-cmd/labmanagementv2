@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Jadwal extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'lab_id',
         'hari',
@@ -18,7 +15,7 @@ class Jadwal extends Model
         'guru',
         'kelas',
         'semester',
-        'tahun_ajaran'
+        'tahun_ajaran',
     ];
 
     public function lab()

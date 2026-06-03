@@ -1,89 +1,97 @@
-<x-app-layout>
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4">
+@extends('layouts.app')
 
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold">
-                    Jadwal Lab
-                </h1>
+@section('content')
 
-                <a href="{{ route('jadwal.create') }}"
-                   class="bg-blue-600 text-white px-4 py-2 rounded">
-                    + Tambah Jadwal
-                </a>
-            </div>
+<div class="flex justify-between mb-6">
 
-            @if(session('success'))
-                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
+    <div>
+        <h1 class="text-3xl font-bold">
+            Jadwal Lab
+        </h1>
 
-            <div class="bg-white rounded shadow overflow-hidden">
-
-                <table class="w-full">
-
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-3 text-left">Lab</th>
-                            <th class="p-3 text-left">Hari</th>
-                            <th class="p-3 text-left">Jam</th>
-                            <th class="p-3 text-left">Mapel</th>
-                            <th class="p-3 text-left">Guru</th>
-                            <th class="p-3 text-left">Kelas</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                    @forelse($jadwals as $jadwal)
-
-                        <tr class="border-t">
-
-                            <td class="p-3">
-                                {{ $jadwal->lab->nama_lab }}
-                            </td>
-
-                            <td class="p-3">
-                                {{ $jadwal->hari }}
-                            </td>
-
-                            <td class="p-3">
-                                {{ $jadwal->jam_mulai }}
-                                -
-                                {{ $jadwal->jam_selesai }}
-                            </td>
-
-                            <td class="p-3">
-                                {{ $jadwal->mata_pelajaran }}
-                            </td>
-
-                            <td class="p-3">
-                                {{ $jadwal->guru }}
-                            </td>
-
-                            <td class="p-3">
-                                {{ $jadwal->kelas }}
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-                            <td colspan="6" class="p-5 text-center">
-                                Belum ada jadwal
-                            </td>
-                        </tr>
-
-                    @endforelse
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
+        <p class="text-gray-500">
+            Daftar jadwal penggunaan laboratorium
+        </p>
     </div>
-</x-app-layout>
+
+    <a href="{{ route('jadwal.create') }}"
+       class="bg-blue-600 text-white px-4 py-2 rounded">
+        Tambah Jadwal
+    </a>
+
+</div>
+
+@if(session('success'))
+<div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+    {{ session('success') }}
+</div>
+@endif
+
+@if($errors->has('jadwal'))
+<div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+    {{ $errors->first('jadwal') }}
+</div>
+@endif
+
+<table class="w-full bg-white rounded-xl shadow">
+
+    <thead>
+        <tr class="border-b">
+            <th class="p-3 text-left">Lab</th>
+            <th class="p-3 text-left">Hari</th>
+            <th class="p-3 text-left">Jam</th>
+            <th class="p-3 text-left">Mapel</th>
+            <th class="p-3 text-left">Guru</th>
+            <th class="p-3 text-left">Kelas</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @forelse($jadwals as $jadwal)
+
+        <tr class="border-b">
+
+            <td class="p-3">
+                {{ $jadwal->lab->nama_lab }}
+            </td>
+
+            <td class="p-3">
+                {{ $jadwal->hari }}
+            </td>
+
+            <td class="p-3">
+                {{ substr($jadwal->jam_mulai,0,5) }}
+                -
+                {{ substr($jadwal->jam_selesai,0,5) }}
+            </td>
+
+            <td class="p-3">
+                {{ $jadwal->mata_pelajaran }}
+            </td>
+
+            <td class="p-3">
+                {{ $jadwal->guru }}
+            </td>
+
+            <td class="p-3">
+                {{ $jadwal->kelas }}
+            </td>
+
+        </tr>
+
+        @empty
+
+        <tr>
+            <td colspan="6" class="p-6 text-center text-gray-500">
+                Belum ada jadwal
+            </td>
+        </tr>
+
+        @endforelse
+
+    </tbody>
+
+</table>
+
+@endsection

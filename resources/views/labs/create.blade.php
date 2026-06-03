@@ -1,15 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-@if ($errors->any())
-    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
 
 <h2>Tambah Lab</h2>
 

@@ -9,36 +9,46 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-      Schema::create('bookings', function (Blueprint $table) {
-    $table->id();
+   public function up(): void
+{
+    Schema::create('bookings', function (Blueprint $table) {
 
-    $table->foreignId('lab_id')
-          ->constrained('labs')
-          ->cascadeOnDelete();
+        $table->id();
 
-    $table->string('nama_guru');
+        $table->foreignId('lab_id')
+              ->constrained('labs')
+              ->cascadeOnDelete();
 
-    $table->string('no_hp');
+        $table->enum('tipe_pemohon', [
+            'guru',
+            'siswa'
+        ]);
 
-    $table->date('tanggal_booking');
+        $table->string('nama_pemohon');
 
-    $table->time('jam_mulai');
-    $table->time('jam_selesai');
+        $table->string('kelas')
+              ->nullable();
 
-    $table->text('keperluan');
+        $table->string('no_hp');
 
-    $table->enum('status', [
-        'pending',
-        'approved',
-        'rejected',
-        'completed'
-    ])->default('pending');
+        $table->date('tanggal_booking');
 
-    $table->timestamps();
-});
-    }
+        $table->time('jam_mulai');
+        $table->time('jam_selesai');
+
+        $table->integer('jumlah_peserta')
+              ->nullable();
+
+        $table->text('keperluan');
+
+        $table->enum('status', [
+            'accepted',
+            'cancelled'
+        ])->default('accepted');
+
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

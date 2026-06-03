@@ -1,0 +1,39 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: lab_mysql
+
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: lab_management_v2
+      MYSQL_USER: labuser
+      MYSQL_PASSWORD: lab123
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+
+    container_name: lab_phpmyadmin
+
+    restart: unless-stopped
+
+    ports:
+      - "8081:80"
+
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:

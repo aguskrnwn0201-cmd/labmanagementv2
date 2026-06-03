@@ -8,13 +8,16 @@ class Booking extends Model
 {
     protected $fillable = [
         'lab_id',
-        'nama_guru',
+        'tipe_pemohon',
+        'nama_pemohon',
+        'kelas',
         'no_hp',
         'tanggal_booking',
         'jam_mulai',
         'jam_selesai',
+        'jumlah_peserta',
         'keperluan',
-        'status'
+        'status',
     ];
 
     public function lab()
