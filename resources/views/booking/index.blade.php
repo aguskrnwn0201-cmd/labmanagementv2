@@ -30,6 +30,7 @@
             <th class="p-3">Tanggal</th>
             <th class="p-3">Jam</th>
             <th class="p-3">Status</th>
+            <th class="p-3">Aksi</th>
         </tr>
     </thead>
 
@@ -57,9 +58,40 @@
         {{ \Carbon\Carbon::parse($booking->jam_selesai)->format('H:i') }}
     </td>
 
-    <td class="p-3">
-        {{ ucfirst($booking->status) }}
-    </td>
+   <td class="p-3">
+    {{ ucfirst($booking->status) }}
+</td>
+
+<td class="p-3">
+
+    <div class="flex gap-2">
+
+        <a href="{{ route('booking.show', $booking->id) }}"
+           class="bg-blue-500 text-white px-3 py-1 rounded">
+            Detail
+        </a>
+
+        <a href="{{ route('booking.edit', $booking->id) }}"
+           class="bg-yellow-500 text-white px-3 py-1 rounded">
+            Edit
+        </a>
+
+        <form action="{{ route('booking.destroy', $booking->id) }}"
+              method="POST"
+              onsubmit="return confirm('Hapus booking ini?')">
+
+            @csrf
+            @method('DELETE')
+
+            <button class="bg-red-600 text-white px-3 py-1 rounded">
+                Hapus
+            </button>
+
+        </form>
+
+    </div>
+
+</td>
 
 </tr>
 

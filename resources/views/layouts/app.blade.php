@@ -23,27 +23,84 @@
 
         <nav class="p-4 space-y-2">
 
-           <a href="{{ route('dashboard') }}"
-   class="block px-4 py-2 hover:bg-blue-800 rounded">
+@if(session('role') == 'guru')
+
+
+<a href="{{ route('guru.dashboard') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Dashboard Guru
+</a>
+
+<a href="{{ route('jadwal.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Jadwal Lab
+</a>
+
+<a href="{{ route('booking.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Booking Lab
+</a>
+
+ <a href="{{ route('laporan-kerusakan.index') }}"
+       class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+        Laporan Kerusakan
+    </a>
+
+
+@elseif(session('role') == 'siswa')
+
+
+<a href="{{ route('siswa.dashboard') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Dashboard Siswa
+</a>
+
+<a href="{{ route('jadwal.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Jadwal Lab
+</a>
+
+<a href="{{ route('laporan-kerusakan.index') }}"
+       class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+        Laporan Kerusakan
+    </a>
+
+
+@else
+
+<a href="{{ route('dashboard') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
     Dashboard
 </a>
 
-            <a href="/labs"
-               class="block px-4 py-3 rounded-lg hover:bg-slate-800">
-                Data Lab
-            </a>
+<a href="{{ route('kalender.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Kalender
+</a>
 
-          <a href="{{ route('jadwal.index') }}"
-   class="block px-4 py-2 hover:bg-blue-800 rounded">
+<a href="{{ route('labs.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Data Lab
+</a>
+
+<a href="{{ route('jadwal.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
     Jadwal
 </a>
 
-            <a href="/booking"
-               class="block px-4 py-3 rounded-lg hover:bg-slate-800">
-                Booking
-            </a>
+<a href="{{ route('booking.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Booking
+</a>
 
-        </nav>
+<a href="{{ route('laporan-kerusakan.index') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Laporan Kerusakan
+</a>
+
+@endif
+
+</nav>
 
     </aside>
 

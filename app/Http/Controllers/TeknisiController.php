@@ -6,6 +6,9 @@ class TeknisiController extends Controller
 {
     public function dashboard()
     {
+        session([
+    'role' => 'teknisi'
+]);
         return view('teknisi.dashboard');
     }
 }
