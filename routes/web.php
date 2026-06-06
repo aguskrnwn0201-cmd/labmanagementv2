@@ -13,42 +13,40 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\LaporanKerusakanController;
 
-
 Route::get('/', [LandingController::class, 'index'])
     ->name('landing');
 
 Route::get('/guru', [GuruController::class, 'dashboard'])
     ->name('guru.dashboard');
 
+Route::get('/siswa', [SiswaController::class, 'dashboard'])
+    ->name('siswa.dashboard');
+
+Route::post('/logout-role', function () {
+    session()->forget('role');
+    return redirect('/');
+})->name('role.logout');
+
 Route::resource('booking', BookingController::class);
 
 Route::get('/kalender', [KalenderController::class, 'index'])
     ->name('kalender.index');
 
-Route::get('/siswa', [SiswaController::class, 'dashboard'])
-    ->name('siswa.dashboard');
+Route::resource('laporan-kerusakan', LaporanKerusakanController::class);
 
-Route::post('/logout-role', function () {
+// Jadwal: index & show bisa diakses semua (guru, siswa, teknisi)
+Route::resource('jadwal', JadwalController::class)
+    ->only(['index', 'show']);
 
-    session()->forget('role');
-
-    return redirect('/');
-
-})->name('role.logout');
-
-    Route::resource(
-    'laporan-kerusakan',
-    LaporanKerusakanController::class
-);
-
+// Jadwal: create, store, edit, update, destroy hanya teknisi (auth)
 Route::middleware(['auth'])->group(function () {
-
     Route::get('/dashboard', [TeknisiController::class, 'dashboard'])
         ->name('dashboard');
 
     Route::resource('labs', LabController::class);
-    Route::resource('jadwal', JadwalController::class);
 
+    Route::resource('jadwal', JadwalController::class)
+        ->except(['index', 'show']);
 });
 
 require __DIR__.'/auth.php';
