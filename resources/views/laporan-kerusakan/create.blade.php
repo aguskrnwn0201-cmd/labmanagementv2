@@ -10,7 +10,7 @@
       method="POST"
       class="bg-white rounded-xl shadow p-6">
 
-```
+
 @csrf
 
 <div class="mb-4">
@@ -22,6 +22,21 @@
     <input type="text"
            name="nama_pelapor"
            class="w-full border rounded p-2">
+
+</div>
+
+<div>
+
+    <label class="block mb-2">
+        Nomor WhatsApp
+    </label>
+
+    <input
+        type="text"
+        name="no_hp"
+        class="w-full border rounded p-2"
+        placeholder="628xxxxxxxxxx"
+        required>
 
 </div>
 
@@ -76,7 +91,7 @@
     Kirim Laporan
 
 </button>
-```
+
 
 </form>
 

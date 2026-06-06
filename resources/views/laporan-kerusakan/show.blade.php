@@ -16,7 +16,7 @@
 
 <div class="bg-white rounded-xl shadow p-6">
 
-```
+
 <p>
     <strong>Pelapor:</strong>
     {{ $laporan_kerusakan->nama_pelapor }}
@@ -44,6 +44,7 @@
 
 <hr class="my-6">
 
+@if(session('role') == 'teknisi')
 <form
     action="{{ route(
         'laporan-kerusakan.update',
@@ -87,7 +88,7 @@
     </button>
 
 </form>
-```
+@endif
 
 </div>
 

@@ -28,6 +28,14 @@ Route::get('/kalender', [KalenderController::class, 'index'])
 Route::get('/siswa', [SiswaController::class, 'dashboard'])
     ->name('siswa.dashboard');
 
+Route::post('/logout-role', function () {
+
+    session()->forget('role');
+
+    return redirect('/');
+
+})->name('role.logout');
+
     Route::resource(
     'laporan-kerusakan',
     LaporanKerusakanController::class

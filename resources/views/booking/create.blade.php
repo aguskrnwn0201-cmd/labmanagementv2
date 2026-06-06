@@ -65,6 +65,8 @@
         <label>Tanggal</label>
         <input type="date"
                name="tanggal_booking"
+               min="{{ now()->format('Y-m-d') }}"
+                max="{{ now()->addDays(7)->format('Y-m-d') }}"
                class="w-full border rounded p-2">
     </div>
 

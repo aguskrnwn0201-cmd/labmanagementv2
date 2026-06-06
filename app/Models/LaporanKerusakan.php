@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class LaporanKerusakan extends Model
 {
     protected $fillable = [
-
-        'lab_id',
-        'nama_pelapor',
-        'role_pelapor',
-        'jenis_kerusakan',
-        'deskripsi',
-        'status'
-
-    ];
+    'lab_id',
+    'nama_pelapor',
+    'role_pelapor',
+    'no_hp',
+    'jenis_kerusakan',
+    'deskripsi',
+    'status',
+];
 
     public function lab()
     {

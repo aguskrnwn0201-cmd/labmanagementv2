@@ -41,6 +41,7 @@ class LaporanKerusakanController extends Controller
         $request->validate([
             'lab_id' => 'required|exists:labs,id',
             'nama_pelapor' => 'required',
+            'no_hp' => 'required',
             'jenis_kerusakan' => 'required',
             'deskripsi' => 'required',
         ]);
@@ -49,6 +50,7 @@ class LaporanKerusakanController extends Controller
     'lab_id' => $request->lab_id,
     'nama_pelapor' => $request->nama_pelapor,
     'role_pelapor' => session('role'),
+    'no_hp' => $request->no_hp,
     'jenis_kerusakan' => $request->jenis_kerusakan,
     'deskripsi' => $request->deskripsi,
     'status' => 'pending',
@@ -56,7 +58,7 @@ class LaporanKerusakanController extends Controller
 
 try {
 
-    Http::post(
+    Http::timeout(10)->post(
         'http://127.0.0.1:3001/send-message',
         [
             'number' => '6282332671812',
@@ -101,6 +103,12 @@ Request $request,
 LaporanKerusakan $laporan_kerusakan
 )
 {
+    if (session('role') !== 'teknisi') {
+
+    abort(403);
+
+}
+
 $request->validate([
 'status' => 'required'
 ]);
@@ -109,6 +117,32 @@ $request->validate([
 $laporan_kerusakan->update([
     'status' => $request->status
 ]);
+
+$laporan_kerusakan->load('lab');
+
+$status = ucfirst($request->status);
+
+$message =
+"Status laporan kerusakan Anda telah diperbarui.\n\n" .
+"Lab: {$laporan_kerusakan->lab->nama_lab}\n" .
+"Kerusakan: {$laporan_kerusakan->jenis_kerusakan}\n" .
+"Status: {$status}";
+
+try {
+
+Http::timeout(10)->post(
+    'http://127.0.0.1:3001/send-message',
+    [
+        'number' => $laporan_kerusakan->no_hp,
+        'message' => $message
+    ]
+);
+
+} catch (\Exception $e) {
+
+    logger($e->getMessage());
+
+}
 
 return redirect()
     ->route(
