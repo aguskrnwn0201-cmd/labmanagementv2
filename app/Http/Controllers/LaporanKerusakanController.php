@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Lab;
 use App\Models\LaporanKerusakan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class LaporanKerusakanController extends Controller
 {
@@ -44,14 +45,35 @@ class LaporanKerusakanController extends Controller
             'deskripsi' => 'required',
         ]);
 
-        LaporanKerusakan::create([
-            'lab_id' => $request->lab_id,
-            'nama_pelapor' => $request->nama_pelapor,
-            'role_pelapor' => session('role'),
-            'jenis_kerusakan' => $request->jenis_kerusakan,
-            'deskripsi' => $request->deskripsi,
-            'status' => 'pending',
-        ]);
+        $laporan = LaporanKerusakan::create([
+    'lab_id' => $request->lab_id,
+    'nama_pelapor' => $request->nama_pelapor,
+    'role_pelapor' => session('role'),
+    'jenis_kerusakan' => $request->jenis_kerusakan,
+    'deskripsi' => $request->deskripsi,
+    'status' => 'pending',
+]);
+
+try {
+
+    Http::post(
+        'http://127.0.0.1:3001/send-message',
+        [
+            'number' => '6282332671812',
+            'message' =>
+                "🚨 LAPORAN KERUSAKAN BARU\n\n" .
+                "Pelapor: {$laporan->nama_pelapor}\n" .
+                "Role: {$laporan->role_pelapor}\n" .
+                "Kerusakan: {$laporan->jenis_kerusakan}\n" .
+                "Status: Pending"
+        ]
+    );
+
+} catch (\Exception $e) {
+
+    logger($e->getMessage());
+
+}
 
         return redirect()
             ->route('laporan-kerusakan.index')
