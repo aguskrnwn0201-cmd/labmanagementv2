@@ -2,15 +2,23 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Models\Lab;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class InventarisExport implements FromCollection
+class InventarisExport implements WithMultipleSheets
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
+    public function sheets(): array
     {
-        //
+        $sheets = [];
+
+        $labs = Lab::all();
+
+        foreach ($labs as $lab) {
+
+            $sheets[] = new InventarisLabSheet($lab);
+
+        }
+
+        return $sheets;
     }
 }

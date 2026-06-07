@@ -2,36 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inventaris;
 use App\Models\Lab;
 use Illuminate\Http\Request;
+use App\Exports\InventarisExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanInventarisController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         if (session('role') !== 'teknisi') {
             abort(403);
         }
 
-        $labId = $request->lab_id;
-
-        $labs = Lab::all();
-
-        $inventaris = Inventaris::with('lab')
-            ->when($labId, function ($query) use ($labId) {
-                $query->where('lab_id', $labId);
-            })
-            ->orderBy('lab_id')
+        $labs = Lab::with('inventaris')
+            ->orderBy('nama_lab')
             ->get();
 
         return view(
             'laporan.inventaris',
-            compact(
-                'inventaris',
-                'labs',
-                'labId'
-            )
+            compact('labs')
+        );
+    }
+
+    public function exportExcel()
+    {
+        if (session('role') !== 'teknisi') {
+            abort(403);
+        }
+
+        return Excel::download(
+            new InventarisExport(),
+            'inventaris-' . now()->format('Y-m') . '.xlsx'
         );
     }
 }

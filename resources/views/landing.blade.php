@@ -1,108 +1,207 @@
 <!DOCTYPE html>
-
-<html lang="id">
+<html class="light" lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Sistem Manajemen Laboratorium</title>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-```
-@vite(['resources/css/app.css', 'resources/js/app.js'])
-```
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#737686",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "primary-container": "#1a56db",
+                        "secondary-fixed": "#eaddff",
+                        "on-primary-fixed-variant": "#003dab",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#1353d8",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#7af3bb",
+                        "on-primary": "#ffffff",
+                        "background": "#f8f9fb",
+                        "surface-variant": "#e1e2e4",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#d4dcff",
+                        "on-secondary-fixed-variant": "#5a00c6",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b5c4ff",
+                        "surface": "#f8f9fb",
+                        "surface-container": "#edeef0",
+                        "tertiary-container": "#006f4b",
+                        "error-container": "#ffdad6",
+                        "primary": "#003fb1",
+                        "secondary-container": "#8b4aff",
+                        "inverse-surface": "#2e3132",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d9dadc",
+                        "outline-variant": "#c3c5d7",
+                        "on-secondary-fixed": "#25005a",
+                        "tertiary-fixed-dim": "#63dca6",
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary": "#005438",
+                        "surface-container-highest": "#e1e2e4",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-fixed": "#00174d",
+                        "secondary-fixed-dim": "#d2bbff",
+                        "tertiary-fixed": "#81f9c1",
+                        "surface-container-low": "#f3f4f6",
+                        "surface-bright": "#f8f9fb",
+                        "inverse-on-surface": "#f0f1f3",
+                        "surface-container-high": "#e7e8ea",
+                        "secondary": "#7127e5",
+                        "on-surface-variant": "#434654",
+                        "on-background": "#191c1e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-card {
+            transform: scale(0.98);
+            border-color: #1a56db;
+            background-color: #f3f4f6;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
 </head>
+<body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col">
 
-<body class="bg-slate-100">
+    <header class="bg-surface border-b border-outline-variant shadow-sm top-0 w-full h-16 flex justify-center items-center px-margin-mobile z-50">
+        <h1 class="font-headline-sm text-headline-sm font-bold text-primary">Lab Management</h1>
+    </header>
 
-<div class="min-h-screen flex items-center justify-center p-6">
+    <main class="flex-grow flex flex-col items-center justify-center p-margin-mobile">
+        <section class="text-center mb-10 mt-6 max-w-sm">
+            <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-3">Sistem Manajemen Laboratorium</h2>
+            <p class="font-body-md text-on-surface-variant">Pilih akses sesuai peran Anda</p>
+        </section>
 
+        <div class="w-full max-w-sm space-y-4 mb-12">
+            <a href="/dashboard" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
+                <div class="mr-4 p-3 rounded-lg bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors">
+                    <span class="material-symbols-outlined text-primary text-[28px]" data-icon="settings">settings</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-headline-sm text-headline-sm text-primary mb-1">Teknisi</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Kelola laboratorium, jadwal, booking, dan laporan kerusakan.</p>
+                </div>
+                <div class="ml-2 flex items-center h-full">
+                    <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+                </div>
+            </a>
 
-<div class="max-w-5xl w-full">
+            <a href="/guru" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
+                <div class="mr-4 p-3 rounded-lg bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors">
+                    <span class="material-symbols-outlined text-primary text-[28px]" data-icon="school">school</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-headline-sm text-headline-sm text-primary mb-1">Guru</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Lihat jadwal laboratorium dan lakukan booking penggunaan lab.</p>
+                </div>
+                <div class="ml-2 flex items-center h-full">
+                    <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+                </div>
+            </a>
 
-    <div class="text-center mb-12">
+            <a href="/siswa" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
+                <div class="mr-4 p-3 rounded-lg bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors">
+                    <span class="material-symbols-outlined text-primary text-[28px]" data-icon="person">person</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-headline-sm text-headline-sm text-primary mb-1">Siswa</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Lihat jadwal laboratorium dan laporkan kerusakan fasilitas.</p>
+                </div>
+                <div class="ml-2 flex items-center h-full">
+                    <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+                </div>
+            </a>
+        </div>
 
-        <h1 class="text-5xl font-bold text-slate-800">
-            Sistem Manajemen Laboratorium
-        </h1>
+        <div class="w-full max-w-xs mb-8 rounded-xl overflow-hidden shadow-md border border-outline-variant/30">
+            <img alt="Lab Environment" class="w-full h-32 object-cover" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600"/>
+        </div>
+    </main>
 
-        <p class="text-slate-500 mt-4 text-lg">
-            Pilih akses sesuai peran Anda
-        </p>
+    <footer class="w-full py-6 px-margin-mobile flex justify-center items-center border-t border-outline-variant">
+        <p class="font-label-sm text-label-sm text-on-surface-variant">© {{ date('Y') }} Sistem Manajemen Laboratorium</p>
+    </footer>
 
-    </div>
+    <script>
+        function selectRole(element) {
+            // Hapus kelas aktif dari semua card peran
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.classList.remove('active-card');
+                card.classList.add('bg-surface-container-lowest');
+            });
+            
+            // Tambahkan kelas aktif ke card yang diklik
+            element.classList.add('active-card');
+            element.classList.remove('bg-surface-container-lowest');
 
-    <div class="grid md:grid-cols-3 gap-8">
-
-        <!-- Teknisi -->
-
-        <a href="/dashboard"
-           class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition">
-
-            <div class="text-5xl mb-4">
-                🛠️
-            </div>
-
-            <h2 class="text-2xl font-bold mb-2">
-                Teknisi
-            </h2>
-
-            <p class="text-slate-500">
-                Kelola laboratorium, jadwal, booking, dan laporan kerusakan.
-            </p>
-
-        </a>
-
-        <!-- Guru -->
-
-        <a href="/guru"
-           class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition">
-
-            <div class="text-5xl mb-4">
-                👨‍🏫
-            </div>
-
-            <h2 class="text-2xl font-bold mb-2">
-                Guru
-            </h2>
-
-            <p class="text-slate-500">
-                Lihat jadwal laboratorium dan lakukan booking penggunaan lab.
-            </p>
-
-        </a>
-
-        <!-- Siswa -->
-
-        <a href="/siswa"
-           class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition">
-
-            <div class="text-5xl mb-4">
-                👨‍🎓
-            </div>
-
-            <h2 class="text-2xl font-bold mb-2">
-                Siswa
-            </h2>
-
-            <p class="text-slate-500">
-                Lihat jadwal laboratorium dan laporkan kerusakan fasilitas.
-            </p>
-
-        </a>
-
-    </div>
-
-    <div class="text-center mt-12 text-slate-400">
-
-        © {{ date('Y') }}
-        Sistem Manajemen Laboratorium
-
-    </div>
-
-</div>
-
-
-</div>
-
+            // Simulasi haptic feedback (jika didukung perangkat mobile)
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(50);
+            }
+            
+            // Efek interaksi shrink sesaat sebelum berpindah halaman
+            setTimeout(() => {
+                element.classList.remove('scale-[0.98]');
+            }, 100);
+        }
+    </script>
 </body>
 </html>

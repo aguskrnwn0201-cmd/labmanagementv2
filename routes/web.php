@@ -64,5 +64,9 @@ Route::resource('inventaris', InventarisController::class)
     '/laporan/inventaris',
     [LaporanInventarisController::class, 'index']
 )->name('laporan.inventaris');
+Route::get(
+    '/laporan/inventaris/export-excel',
+    [LaporanInventarisController::class, 'exportExcel']
+)->name('laporan.inventaris.excel');
 
 require __DIR__.'/auth.php';

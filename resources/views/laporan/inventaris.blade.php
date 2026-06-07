@@ -2,98 +2,135 @@
 
 @section('content')
 
-<h1 class="text-3xl font-bold mb-6">
-    Laporan Inventaris
-</h1>
+<div class="flex justify-between items-center mb-6">
 
-<form method="GET" class="mb-6">
+    <h1 class="text-3xl font-bold">
+        Laporan Inventaris
+    </h1>
 
-    <select
-        name="lab_id"
-        onchange="this.form.submit()"
-        class="border rounded p-2">
+    <a href="{{ route('laporan.inventaris.excel') }}"
+   style="
+        background:#16a34a;
+        color:white;
+        padding:10px 16px;
+        border-radius:8px;
+        text-decoration:none;
+        font-weight:bold;
+   ">
 
-        <option value="">
-            Semua Lab
-        </option>
+    📊 Export Excel
 
-        @foreach($labs as $lab)
+</a>
 
-            <option
-                value="{{ $lab->id }}"
-                {{ $labId == $lab->id ? 'selected' : '' }}>
+</div>
 
-                {{ $lab->nama_lab }}
+@foreach($labs as $lab)
 
-            </option>
+<div class="bg-white rounded-xl shadow mb-6">
 
-        @endforeach
+    <div class="border-b px-6 py-4">
 
-    </select>
+        <h2 class="text-xl font-semibold">
+            {{ $lab->nama_lab }}
+        </h2>
 
-</form>
+    </div>
 
-<table class="w-full bg-white shadow rounded">
+    <div class="p-6">
 
-    <thead>
+        <table class="w-full">
 
-        <tr class="border-b">
+            <thead>
 
-            <th class="p-3">Lab</th>
-            <th class="p-3">Barang</th>
-            <th class="p-3">Jumlah</th>
-            <th class="p-3">Kondisi</th>
-            <th class="p-3">Keterangan</th>
+                <tr class="border-b">
 
-        </tr>
+                    <th class="text-left p-3">
+                        Nama Barang
+                    </th>
 
-    </thead>
+                    <th class="text-left p-3">
+                        Jumlah
+                    </th>
 
-    <tbody>
+                    <th class="text-left p-3">
+                        Kondisi
+                    </th>
 
-        @forelse($inventaris as $item)
+                    <th class="text-left p-3">
+                        Keterangan
+                    </th>
 
-        <tr class="border-b">
+                </tr>
 
-            <td class="p-3">
-                {{ $item->lab->nama_lab }}
-            </td>
+            </thead>
 
-            <td class="p-3">
-                {{ $item->nama_barang }}
-            </td>
+            <tbody>
 
-            <td class="p-3">
-                {{ $item->jumlah }}
-            </td>
+            @forelse($lab->inventaris as $item)
 
-            <td class="p-3">
-                {{ $item->kondisi }}
-            </td>
+                <tr class="border-b">
 
-            <td class="p-3">
-                {{ $item->keterangan }}
-            </td>
+                    <td class="p-3">
+                        {{ $item->nama_barang }}
+                    </td>
 
-        </tr>
+                    <td class="p-3">
+                        {{ $item->jumlah }}
+                    </td>
 
-        @empty
+                    <td class="p-3">
 
-        <tr>
+                        @if($item->kondisi == 'Baik')
 
-            <td colspan="5"
-                class="text-center p-6">
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                Baik
+                            </span>
 
-                Tidak ada data
+                        @elseif($item->kondisi == 'Rusak Ringan')
 
-            </td>
+                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                                Rusak Ringan
+                            </span>
 
-        </tr>
+                        @else
 
-        @endforelse
+                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded">
+                                Rusak Berat
+                            </span>
 
-    </tbody>
+                        @endif
 
-</table>
+                    </td>
+
+                    <td class="p-3">
+                        {{ $item->keterangan }}
+                    </td>
+
+                </tr>
+
+            @empty
+
+                <tr>
+
+                    <td colspan="4"
+                        class="p-6 text-center text-gray-500">
+
+                        Tidak ada inventaris
+
+                    </td>
+
+                </tr>
+
+            @endforelse
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@endforeach
 
 @endsection
