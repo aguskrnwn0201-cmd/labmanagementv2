@@ -25,4 +25,9 @@ class Lab extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function inventaris()
+{
+    return $this->hasMany(Inventaris::class);
+}
+
 }

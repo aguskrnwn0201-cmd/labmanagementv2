@@ -33,10 +33,25 @@ class JadwalController extends Controller
         $labs = Lab::where('status', 'aktif')->get();
 
         return view('jadwal.create', compact('labs'));
+
+         if (session('role') !== 'teknisi') {
+        abort(403);
+    }
+
+    $labs = Lab::all();
+
+    return view(
+        'jadwal.create',
+        compact('labs')
+    );
     }
 
     public function store(Request $request)
     {
+         if (session('role') !== 'teknisi') {
+        abort(403);
+    }
+
         $request->validate([
             'lab_id'         => 'required|exists:labs,id',
             'hari'           => 'required',
@@ -89,6 +104,9 @@ class JadwalController extends Controller
 
     public function edit(Jadwal $jadwal)
     {
+         if (session('role') !== 'teknisi') {
+        abort(403);
+    }
         $labs = Lab::where('status', 'aktif')->get();
 
         return view('jadwal.edit', compact('jadwal', 'labs'));
@@ -96,6 +114,9 @@ class JadwalController extends Controller
 
     public function update(Request $request, Jadwal $jadwal)
     {
+        if (session('role') !== 'teknisi') {
+        abort(403);
+    }
         $request->validate([
             'lab_id'         => 'required|exists:labs,id',
             'hari'           => 'required',
@@ -142,6 +163,9 @@ class JadwalController extends Controller
 
     public function destroy(Jadwal $jadwal)
     {
+         if (session('role') !== 'teknisi') {
+        abort(403);
+    }
         $jadwal->delete();
 
         return redirect()

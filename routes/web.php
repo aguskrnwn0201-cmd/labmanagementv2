@@ -12,6 +12,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\LaporanKerusakanController;
+use App\Http\Controllers\InventarisController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LaporanInventarisController;
 
 Route::get('/', [LandingController::class, 'index'])
     ->name('landing');
@@ -34,19 +37,32 @@ Route::get('/kalender', [KalenderController::class, 'index'])
 
 Route::resource('laporan-kerusakan', LaporanKerusakanController::class);
 
-// Jadwal: index & show bisa diakses semua (guru, siswa, teknisi)
-Route::resource('jadwal', JadwalController::class)
-    ->only(['index', 'show']);
+/*
+|--------------------------------------------------------------------------
+| JADWAL
+|--------------------------------------------------------------------------
+*/
 
-// Jadwal: create, store, edit, update, destroy hanya teknisi (auth)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [TeknisiController::class, 'dashboard'])
-        ->name('dashboard');
+Route::get('/dashboard', [TeknisiController::class, 'dashboard'])
+    ->name('dashboard');
 
-    Route::resource('labs', LabController::class);
+Route::resource('labs', LabController::class);
 
-    Route::resource('jadwal', JadwalController::class)
-        ->except(['index', 'show']);
-});
+Route::resource('jadwal', JadwalController::class);
+
+
+Route::resource('inventaris', InventarisController::class)
+    ->parameters([
+        'inventaris' => 'inventaris'
+    ]);
+        Route::get(
+            '/laporan/penggunaan',
+            [LaporanController::class, 'penggunaan']
+        )->name('laporan.penggunaan');
+
+        Route::get(
+    '/laporan/inventaris',
+    [LaporanInventarisController::class, 'index']
+)->name('laporan.inventaris');
 
 require __DIR__.'/auth.php';

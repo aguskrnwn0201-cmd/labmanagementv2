@@ -16,7 +16,7 @@
 
 <div class="min-h-screen flex items-center justify-center p-6">
 
-```
+
 <div class="max-w-5xl w-full">
 
     <div class="text-center mb-12">
@@ -100,7 +100,7 @@
     </div>
 
 </div>
-```
+
 
 </div>
 

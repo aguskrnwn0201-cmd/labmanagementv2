@@ -10,7 +10,7 @@
       method="POST"
       class="bg-white rounded-xl shadow p-6">
 
-```
+
 @csrf
 
 <div class="mb-4">
@@ -76,7 +76,7 @@
     Kirim Laporan
 
 </button>
-```
+
 
 </form>
 

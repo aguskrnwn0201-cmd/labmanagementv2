@@ -99,6 +99,29 @@
                 Laporan Kerusakan
             </a>
 
+            <a href="{{ route('inventaris.index') }}"
+                class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+                    Inventaris
+            </a>
+
+            <div class="pt-4 border-t border-slate-700 mt-4">
+
+    <p class="px-4 text-xs text-slate-400 uppercase mb-2">
+        Laporan
+    </p>
+
+    <a href="{{ route('laporan.penggunaan') }}"
+       class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+        Penggunaan Lab
+    </a>
+
+    <a href="{{ route('laporan.inventaris') }}"
+   class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+    Inventaris
+</a>
+
+</div>
+
         @endif
 
     </nav>
