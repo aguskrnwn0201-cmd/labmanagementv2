@@ -1,98 +1,98 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-    <div>
-        <h3 class="font-headline-lg text-headline-lg text-on-surface mb-1">Data Lab</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant">Kelola daftar laboratorium dan kapasitas operasional secara real-time.</p>
-    </div>
-    <a href="{{ route('labs.create') }}" class="bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:opacity-90 transition-opacity shadow-sm">
-        <span class="material-symbols-outlined">add</span>
-        <span>Tambah Lab</span>
-    </a>
-</div>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-<div class="flex flex-col lg:flex-row gap-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-sm mb-8">
-    <div class="relative flex-1">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-        <input class="w-full pl-11 pr-4 py-2.5 bg-background border border-outline rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md" placeholder="Cari nama lab atau lokasi..." type="text"/>
-    </div>
-    <div class="flex gap-2">
-        <button class="px-4 py-2.5 border border-outline rounded-lg flex items-center gap-2 text-on-surface hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-sm">filter_list</span>
-            <span class="font-label-md">Filter Status</span>
-        </button>
-        <button class="px-4 py-2.5 border border-outline rounded-lg flex items-center gap-2 text-on-surface hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-sm">sort</span>
-            <span class="font-label-md">Urutkan</span>
-        </button>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+{{-- Kontainer Utama: Mengikuti alur layout bawaan app.blade.php secara natural tanpa margin-left manual --}}
+<div class="w-full relative p-4 md:p-6">
     
-    @forelse($labs as $lab)
-        <div class="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-            <div>
-                <div class="h-40 relative bg-surface-container-high">
-                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                         src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80" 
-                         alt="{{ $lab->nama_lab }}"/>
-                    <div class="absolute top-4 right-4">
-                        @if($lab->status == 'aktif')
-                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full border border-green-200">
-                                Aktif
-                            </span>
-                        @else
-                            <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200">
-                                Nonaktif
-                            </span>
-                        @endif
+    {{-- Header Area --}}
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+            <h3 class="font-headline-lg text-headline-lg text-on-surface mb-1">Data Lab</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant">Kelola daftar laboratorium dan kapasitas operasional secara real-time.</p>
+        </div>
+        
+        {{-- Tombol Tambah Lab dengan Logika Penyelamat jika Role Kosong --}}
+        @if(Auth::check() && Auth::user()->role != 'guru' && Auth::user()->role != 'siswa')
+            <a href="{{ route('labs.create') }}" class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-sm self-start md:self-auto no-underline font-label-md text-label-md">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>Tambah Lab</span>
+            </a>
+        @endif
+    </div>
+
+    {{-- KONTEN UTAMA: Layout List Vertikal Tunggal --}}
+    <div class="space-y-4">
+        
+        @forelse($labs as $lab)
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-5 hover:border-primary transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                
+                {{-- Sisi Kiri: Icon dan Informasi Detail Lab --}}
+                <div class="flex items-center gap-4 min-w-0">
+                    <div class="bg-primary/10 text-primary p-3 rounded-xl flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-2xl">computer</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h4 class="text-base font-bold text-on-surface truncate">{{ $lab->nama_lab }}</h4>
+                            
+                            {{-- Badge Status Aktif / Nonaktif Dinamis --}}
+                            @if($lab->status == 'aktif')
+                                <span class="bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                    Aktif
+                                </span>
+                            @else
+                                <span class="bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                    Nonaktif
+                                </span>
+                            @endif
+                        </div>
+                        
+                        {{-- Meta Data: Lokasi & Kapasitas --}}
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-on-surface-variant">
+                            <div class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[16px]">location_on</span>
+                                <span>{{ $lab->lokasi }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[16px]">groups</span>
+                                <span>Kapasitas: <strong class="text-primary">{{ $lab->kapasitas }} Siswa</strong></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="p-6 space-y-4">
-                    <div>
-                        <h4 class="font-headline-sm text-headline-sm text-on-surface">{{ $lab->nama_lab }}</h4>
-                        <div class="flex items-center gap-2 text-on-surface-variant mt-1">
-                            <span class="material-symbols-outlined text-sm">location_on</span>
-                            <span class="font-body-sm text-body-sm">{{ $lab->lokasi }}</span>
-                        </div>
+                
+                {{-- Sisi Kanan: Status Operasional & Tombol Aksi Menuju Detail --}}
+                <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-outline-variant">
+                    <div class="text-left sm:text-right">
+                        <p class="text-[10px] text-on-surface-variant font-medium uppercase tracking-wider">Operasional</p>
+                        <p class="text-sm font-bold text-green-600">Ready</p>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 pt-2">
-                        <div class="bg-background p-3 rounded-lg flex flex-col">
-                            <span class="text-[10px] uppercase font-bold text-outline">Kapasitas</span>
-                            <span class="font-headline-sm text-primary">{{ $lab->kapasitas }} Siswa</span>
-                        </div>
-                        <div class="bg-background p-3 rounded-lg flex flex-col justify-center">
-                            <span class="text-[10px] uppercase font-bold text-outline">Operasional</span>
-                            <span class="text-body-sm font-semibold text-on-surface mt-0.5">Ready</span>
-                        </div>
-                    </div>
+                    
+                    <a href="{{ route('labs.show', $lab->id) }}" class="inline-flex items-center gap-1 bg-surface-container-low hover:bg-primary hover:text-white text-on-surface px-4 py-2 rounded-lg text-xs font-bold transition-all no-underline shadow-sm border border-outline-variant">
+                        <span>Lihat Detail</span>
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                    </a>
                 </div>
             </div>
-
-            <div class="px-6 pb-6 pt-2">
-                <a href="{{ route('labs.show', $lab->id) }}" class="block w-full py-2 text-center border border-primary text-primary font-bold rounded-lg hover:bg-primary-fixed transition-colors">
-                    Lihat Detail
-                </a>
+        @empty
+            {{-- State jika seandainya data kosong --}}
+            <div class="py-16 text-center bg-surface-container-low/30 rounded-xl border-2 border-dashed border-outline-variant">
+                <span class="material-symbols-outlined text-5xl text-outline-variant mb-3">layers_clear</span>
+                <h4 class="font-headline-sm text-headline-sm text-on-surface">Belum Ada Data Lab</h4>
+                <p class="text-on-surface-variant font-body-sm mt-1">Klik tombol 'Tambah Lab' di atas untuk memasukkan unit ruang baru.</p>
             </div>
-        </div>
-    @empty
-        <div class="col-span-1 md:col-span-2 lg:col-span-3 py-16 text-center bg-surface-container-low/30 rounded-xl border-2 border-dashed border-outline-variant">
-            <span class="material-symbols-outlined text-5xl text-outline-variant mb-3">layers_clear</span>
-            <h4 class="font-headline-sm text-headline-sm text-on-surface">Belum Ada Data Lab</h4>
-            <p class="text-on-surface-variant font-body-sm mt-1">Klik tombol 'Tambah Lab' di atas untuk memasukkan unit ruang baru.</p>
-        </div>
-    @endforelse
+        @endforelse
 
-    <a href="{{ route('labs.create') }}" class="group border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-8 hover:bg-surface-container-low transition-colors min-h-[380px]">
-        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-4xl">add_circle</span>
-        </div>
-        <h4 class="font-headline-sm text-headline-sm text-on-surface text-center">Tambah Unit Baru</h4>
-        <p class="text-on-surface-variant text-center font-body-sm max-w-[200px] mt-2">Daftarkan laboratorium atau ruang praktikum baru ke sistem.</p>
-    </a>
+        {{-- Slot Tombol Cepat Tambah Unit Baru di Paling Bawah List --}}
+        @if(Auth::check() && Auth::user()->role != 'guru' && Auth::user()->role != 'siswa')
+            <a href="{{ route('labs.create') }}" class="flex items-center justify-center gap-2 py-4 border border-dashed border-outline-variant hover:border-primary hover:bg-surface-container-lowest rounded-xl text-xs font-bold text-on-surface-variant hover:text-primary transition-all no-underline cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                <span>Tambah Unit Laboratorium Baru</span>
+            </a>
+        @endif
+
+    </div>
 </div>
 @endsection

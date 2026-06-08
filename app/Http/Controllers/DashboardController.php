@@ -32,13 +32,14 @@ class DashboardController extends Controller
         // Ambil 5 aktivitas booking terbaru beserta relasi lab-nya
         $bookingTerbaru = Booking::with('lab')->latest()->take(5)->get();
 
-        return view('dashboard', compact(
-            'totalLab',
-            'totalKomputer',
-            'totalJadwal',
-            'totalBooking',
-            'bookingHariIni',
-            'bookingTerbaru'
-        ));
+        // Pastikan di bagian return paling bawah fungsinya seperti ini:
+            return view('dashboard', compact(
+                'totalLab', 
+                'totalJadwal', 
+                'totalBooking', 
+                'bookingHariIni', 
+                'bookingTerbaru', 
+                'totalKomputer' // parsing semua variabel ke satu file saja
+            ));
     }
 }

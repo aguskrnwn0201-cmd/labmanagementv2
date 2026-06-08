@@ -3,22 +3,26 @@
 @section('content')
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-<div class="max-w-[1440px] mx-auto px-4 md:px-8 py-6" 
-     x-data="calendarComponent()">
+{{-- FIX LAYOUT: Menghapus ml-0 md:ml-64 agar mengikuti alur layout bawaan app.blade.php dan tidak menimpa sidebar --}}
+<div class="w-full relative p-4 md:p-6" x-data="calendarComponent()">
     
-    <div class="mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold text-blue-600">Kalender Lab</h1>
-        <p class="text-sm text-gray-500">Jadwal dan booking laboratorium secara real-time</p>
+    <div class="mb-8">
+        <h1 class="font-headline-sm text-headline-sm md:font-headline-lg md:text-headline-lg font-bold text-primary dark:text-primary-fixed-dim mb-1">
+            Kalender Lab
+        </h1>
+        <p class="font-body-md text-on-surface-variant">
+            Jadwal dan booking laboratorium secara real-time
+        </p>
     </div>
 
-    <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-6">
+    <section class="bg-surface-container-lowest rounded-lg border border-outline-variant shadow-sm p-6 mb-8">
         <div class="flex items-center justify-between mb-6 px-2">
             <button @click="prev()" class="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer select-none border-0 bg-transparent">
                 <span class="material-symbols-outlined align-middle">chevron_left</span>
             </button>
             <div class="text-center">
-                <h2 class="text-lg md:text-xl font-bold text-gray-800" x-text="monthYearLabel"></h2>
-                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-0.5" 
+                <h2 class="text-lg md:text-xl font-bold text-on-surface" x-text="monthYearLabel"></h2>
+                <p class="text-[10px] font-bold text-primary uppercase tracking-widest mt-0.5" 
                    x-text="viewMode === 'weekly' ? 'Tampilan Mingguan' : 'Tampilan Bulanan'"></p>
             </div>
             <button @click="next()" class="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer select-none border-0 bg-transparent">
@@ -26,9 +30,9 @@
             </button>
         </div>
 
-        <div class="grid grid-cols-7 gap-1 text-center border-b border-gray-100 pb-2 mb-2">
+        <div class="grid grid-cols-7 gap-1 text-center border-b border-outline-variant pb-2 mb-2">
             <template x-for="day in daysOfWeek">
-                <div class="text-xs font-bold text-gray-500 py-1" x-text="day"></div>
+                <div class="text-xs font-bold text-on-surface-variant py-1" x-text="day"></div>
             </template>
         </div>
         
@@ -37,16 +41,16 @@
                 <template x-for="item in currentWeekArray">
                     <div @click="selectDate(item.dateStr)"
                          :class="{
-                            'bg-blue-600 text-white font-bold rounded-xl shadow-sm': isSelected(item.dateStr),
-                            'hover:bg-gray-100 rounded-xl cursor-pointer': !isSelected(item.dateStr)
+                            'bg-primary text-white font-bold rounded-lg shadow-sm': isSelected(item.dateStr),
+                            'hover:bg-gray-100 rounded-lg cursor-pointer': !isSelected(item.dateStr)
                          }"
                          class="py-3 flex flex-col items-center justify-center gap-1 transition-all select-none relative">
                         <span class="text-sm md:text-base" x-text="item.day"></span>
                         
                         <div class="flex gap-0.5 items-center justify-center h-1.5">
-                            <div :class="isToday(item.dateStr) ? (isSelected(item.dateStr) ? 'bg-white' : 'bg-blue-600') : 'bg-transparent'" class="w-1.5 h-1.5 rounded-full"></div>
+                            <div :class="isToday(item.dateStr) ? (isSelected(item.dateStr) ? 'bg-white' : 'bg-primary') : 'bg-transparent'" class="w-1.5 h-1.5 rounded-full"></div>
                             <template x-if="hasActivity(item.dateStr)">
-                                <div :class="isSelected(item.dateStr) ? 'bg-white' : 'bg-amber-500'" class="w-1.5 h-1.5 rounded-full shadow-sm animate-pulse"></div>
+                                <div :class="isSelected(item.dateStr) ? 'bg-white' : 'bg-amber-500'" class="w-1.5 h-1.5 rounded-full shadow-sm"></div>
                             </template>
                         </div>
                     </div>
@@ -57,17 +61,17 @@
                 <template x-for="item in daysInMonthArray">
                     <div @click="selectDate(item.dateStr)"
                          :class="{
-                            'bg-blue-600 text-white font-bold rounded-xl shadow-sm': isSelected(item.dateStr) && !item.disabled,
-                            'hover:bg-gray-100 rounded-xl cursor-pointer': !isSelected(item.dateStr) && !item.disabled,
+                            'bg-primary text-white font-bold rounded-lg shadow-sm': isSelected(item.dateStr) && !item.disabled,
+                            'hover:bg-gray-100 rounded-lg cursor-pointer': !isSelected(item.dateStr) && !item.disabled,
                             'opacity-20 pointer-events-none': item.disabled
                          }"
                          class="py-2 flex flex-col items-center justify-center gap-0.5 transition-all select-none relative">
                         <span class="text-sm md:text-base" x-text="item.day"></span>
                         
                         <div class="flex gap-0.5 items-center justify-center h-1.5">
-                            <div :class="isToday(item.dateStr) ? (isSelected(item.dateStr) ? 'bg-white' : 'bg-blue-600') : 'bg-transparent'" class="w-1.5 h-1.5 rounded-full"></div>
+                            <div :class="isToday(item.dateStr) ? (isSelected(item.dateStr) ? 'bg-white' : 'bg-primary') : 'bg-transparent'" class="w-1.5 h-1.5 rounded-full"></div>
                             <template x-if="hasActivity(item.dateStr) && !item.disabled">
-                                <div :class="isSelected(item.dateStr) ? 'bg-white' : 'bg-amber-500'" class="w-1.5 h-1.5 rounded-full shadow-sm animate-pulse"></div>
+                                <div :class="isSelected(item.dateStr) ? 'bg-white' : 'bg-amber-500'" class="w-1.5 h-1.5 rounded-full shadow-sm"></div>
                             </template>
                         </div>
                     </div>
@@ -76,18 +80,18 @@
         </div>
 
         <div class="mt-6 flex justify-center gap-3">
-            <button @click="viewMode = 'weekly'" :class="viewMode === 'weekly' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-0">Mingguan</button>
-            <button @click="viewMode = 'monthly'" :class="viewMode === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-0">Bulanan</button>
+            <button @click="viewMode = 'weekly'" :class="viewMode === 'weekly' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-0">Mingguan</button>
+            <button @click="viewMode = 'monthly'" :class="viewMode === 'monthly' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-0">Bulanan</button>
         </div>
     </section>
 
     <section class="space-y-4">
         <div class="flex items-center justify-between mb-2">
             <div>
-                <h3 class="text-base md:text-lg font-bold text-gray-800">Daftar Aktivitas Laboratorium</h3>
-                <p class="text-xs text-gray-500 mt-0.5">Menampilkan agenda untuk hari <span class="font-bold text-blue-600" x-text="selectedDayName + ', ' + selectedDateReadable"></span></p>
+                <h4 class="font-headline-sm text-headline-sm text-on-surface">Daftar Aktivitas Laboratorium</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Menampilkan agenda untuk hari <span class="font-bold text-primary" x-text="selectedDayName + ', ' + selectedDateReadable"></span></p>
             </div>
-            <button @click="resetToToday()" class="text-xs text-blue-600 font-bold hover:underline bg-transparent border-0 cursor-pointer">Hari Ini</button>
+            <button @click="resetToToday()" class="text-xs text-primary font-bold hover:underline bg-transparent border-0 cursor-pointer">Hari Ini</button>
         </div>
 
         <div class="grid grid-cols-1 gap-4">
@@ -99,16 +103,16 @@
                     <div x-show="shouldShowActivity('jadwal', '{{ $jadwal->hari }}')"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
-                         class="bg-white border border-gray-200 p-4 rounded-lg shadow-sm flex items-start gap-4 hover:border-blue-500 transition-colors duration-200">
-                        <div class="bg-blue-50 text-blue-600 p-3 rounded-lg flex items-center justify-center shrink-0">
+                         class="bg-white p-5 rounded-lg border border-outline-variant shadow-sm hover:border-primary transition-all flex items-start gap-4">
+                        <div class="bg-primary/10 text-primary p-3 rounded-lg flex items-center justify-center shrink-0">
                             <span class="material-symbols-outlined">computer</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start gap-2 mb-1">
-                                <h4 class="text-sm font-bold text-gray-800 truncate">{{ $jadwal->lab->nama_lab ?? 'Lab' }}</h4>
-                                <span class="bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border border-blue-200">Jadwal Rutin</span>
+                                <h4 class="text-sm font-bold text-on-surface truncate">{{ $jadwal->lab->nama_lab ?? 'Lab' }}</h4>
+                                <span class="bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border border-blue-200">Jadwal Rutin</span>
                             </div>
-                            <p class="text-xs md:text-sm text-gray-600 mb-3 font-medium">{{ $jadwal->mata_pelajaran }}</p>
+                            <p class="text-xs md:text-sm text-on-surface-variant mb-3 font-medium">{{ $jadwal->mata_pelajaran }}</p>
                             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
                                 <div class="flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[16px]">calendar_today</span>
@@ -129,16 +133,16 @@
                     <div x-show="shouldShowActivity('booking', '{{ $bookingDateFormated }}')"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
-                         class="bg-white border border-gray-200 p-4 rounded-lg shadow-sm flex items-start gap-4 hover:border-purple-300 transition-colors duration-200">
+                         class="bg-white p-5 rounded-lg border border-outline-variant shadow-sm hover:border-purple-400 transition-all flex items-start gap-4">
                         <div class="bg-purple-50 text-purple-700 p-3 rounded-lg flex items-center justify-center shrink-0">
                             <span class="material-symbols-outlined">science</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start gap-2 mb-1">
-                                <h4 class="text-sm font-bold text-gray-800 truncate">{{ $booking->lab->nama_lab ?? 'Lab' }}</h4>
-                                <span class="bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border border-purple-200">Booking User</span>
+                                <h4 class="text-sm font-bold text-on-surface truncate">{{ $booking->lab->nama_lab ?? 'Lab' }}</h4>
+                                <span class="bg-purple-50 text-purple-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 border border-purple-200">Booking User</span>
                             </div>
-                            <p class="text-xs md:text-sm text-gray-600 mb-3 font-medium">Booking - {{ $booking->nama_pemohon ?? $booking->nama_peminjam ?? 'User' }}</p>
+                            <p class="text-xs md:text-sm text-on-surface-variant mb-3 font-medium">Booking - {{ $booking->nama_pemohon ?? $booking->nama_peminjam ?? 'User' }}</p>
                             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
                                 <div class="flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[16px]">calendar_today</span>
@@ -154,16 +158,20 @@
                 @endforeach
             @endif
 
-            <div id="empty-state-card" class="py-12 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 hidden">
-                <span class="material-symbols-outlined text-4xl text-gray-300 mb-2">event_available</span>
-                <p class="text-xs text-gray-500 italic">Tidak ada jadwal rutin ataupun booking terdaftar untuk hari ini.</p>
+            <div id="empty-state-card" class="py-12 text-center bg-surface-container-lowest rounded-lg border border-dashed border-outline-variant hidden">
+                <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">event_available</span>
+                <p class="text-xs text-on-surface-variant italic">Tidak ada jadwal rutin ataupun booking terdaftar untuk hari ini.</p>
             </div>
         </div>
     </section>
 
-    @if(session('role') == 'teknisi' || session('role') == 'guru')
-        <a href="{{ route('booking.index') }}" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-blue-700 active:scale-95 transition-all z-20 decoration-none">
-            <span class="material-symbols-outlined text-3xl">add</span>
+    {{-- Jarak aman bawah supaya daftar aktivitas paling bawah tidak terpotong tombol bulat FAB --}}
+    <div class="pb-16"></div>
+
+    {{-- FLOATING ACTION BUTTON (FAB) --}}
+    @if(Auth::check())
+        <a href="{{ route('booking.index') }}" class="fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-blue-700 active:scale-95 transition-all z-20 no-underline">
+            <span class="material-symbols-outlined text-3xl text-white">add</span>
         </a>
     @endif
 </div>
