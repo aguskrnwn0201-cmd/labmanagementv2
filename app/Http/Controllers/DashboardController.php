@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Lab;
 use App\Models\Jadwal;
 use App\Models\Booking;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -12,25 +13,32 @@ class DashboardController extends Controller
     {
         $totalLab = Lab::count();
 
-        $totalJadwal = Jadwal::count();
+        // Mengambil jumlah aset komputer secara aman langsung dari database
+        try {
+            $totalKomputer = DB::table('inventaris')
+                ->where(function($query) {
+                    $query->where('nama_barang', 'like', '%komputer%')
+                          ->orWhere('nama_barang', 'like', '%pc%')
+                          ->orWhere('nama_barang', 'like', '%laptop%');
+                })->sum('jumlah');
+        } catch (\Exception $e) {
+            $totalKomputer = 0; 
+        }
 
-        $totalBooking = Booking::count();
+        $totalJadwal    = Jadwal::count();
+        $totalBooking   = Booking::count();
+        $bookingHariIni = Booking::whereDate('tanggal_booking', today())->count();
 
-        $bookingHariIni = Booking::whereDate(
-            'tanggal_booking',
-            today()
-        )->count();
-
-         $bookingTerbaru = Booking::with('lab')
-            ->latest()
-            ->take(5)
-            ->get();
+        // Ambil 5 aktivitas booking terbaru beserta relasi lab-nya
+        $bookingTerbaru = Booking::with('lab')->latest()->take(5)->get();
 
         return view('dashboard', compact(
             'totalLab',
+            'totalKomputer',
             'totalJadwal',
             'totalBooking',
-            'bookingHariIni'
+            'bookingHariIni',
+            'bookingTerbaru'
         ));
     }
 }

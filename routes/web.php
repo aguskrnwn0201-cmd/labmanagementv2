@@ -43,7 +43,7 @@ Route::resource('laporan-kerusakan', LaporanKerusakanController::class);
 |--------------------------------------------------------------------------
 */
 
-Route::get('/dashboard', [TeknisiController::class, 'dashboard'])
+Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::resource('labs', LabController::class);

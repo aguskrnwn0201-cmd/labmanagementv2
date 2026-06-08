@@ -1,136 +1,86 @@
 @extends('layouts.app')
 
 @section('content')
-
-<div class="flex justify-between items-center mb-6">
-
-    <h1 class="text-3xl font-bold">
-        Laporan Inventaris
-    </h1>
-
-    <a href="{{ route('laporan.inventaris.excel') }}"
-   style="
-        background:#16a34a;
-        color:white;
-        padding:10px 16px;
-        border-radius:8px;
-        text-decoration:none;
-        font-weight:bold;
-   ">
-
-    📊 Export Excel
-
-</a>
-
-</div>
-
-@foreach($labs as $lab)
-
-<div class="bg-white rounded-xl shadow mb-6">
-
-    <div class="border-b px-6 py-4">
-
-        <h2 class="text-xl font-semibold">
-            {{ $lab->nama_lab }}
-        </h2>
-
+<div class="max-w-4xl mx-auto px-margin-mobile py-8">
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div class="space-y-1">
+            <h2 class="text-headline-md font-headline-md text-on-surface font-bold">Laporan Inventaris</h2>
+            <p class="text-body-sm font-body-sm text-on-surface-variant">Data lengkap aset dan peralatan laboratorium aktif.</p>
+        </div>
+        <a href="{{ route('laporan.inventaris.excel') }}" class="flex items-center justify-center gap-2 bg-tertiary-container text-on-tertiary-container px-6 py-3 rounded-xl font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all decoration-none">
+            <span class="material-symbols-outlined">description</span>
+            <span>Export Excel</span>
+        </a>
     </div>
 
-    <div class="p-6">
+    @foreach($labs as $lab)
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-4 px-2">
+                @if(Str::contains(Str::lower($lab->nama_lab), 'komputer'))
+                    <span class="material-symbols-outlined text-primary text-3xl">computer</span>
+                @elseif(Str::contains(Str::lower($lab->nama_lab), 'kimia'))
+                    <span class="material-symbols-outlined text-primary text-3xl">chemistry</span>
+                @elseif(Str::contains(Str::lower($lab->nama_lab), 'biologi'))
+                    <span class="material-symbols-outlined text-primary text-3xl">biotech</span>
+                @else
+                    <span class="material-symbols-outlined text-primary text-3xl">inventory_2</span>
+                @endif
+                <h3 class="text-headline-sm font-headline-sm text-primary font-bold">{{ $lab->nama_lab }}</h3>
+            </div>
 
-        <table class="w-full">
+            <div class="grid grid-cols-1 gap-4">
+                @forelse($lab->inventaris as $item)
+                    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:border-primary/50 transition-colors duration-200">
+                        <div class="flex justify-between items-start mb-3 gap-4">
+                            <div class="space-y-1 min-w-0">
+                                <h4 class="text-body-lg font-bold text-on-surface truncate">{{ $item->nama_barang }}</h4>
+                                <p class="text-label-sm font-label-sm text-on-surface-variant">ID / Kode: #{{ $item->id ?? 'INV-'.$item->id }}</p>
+                            </div>
+                            
+                            @if($item->kondisi == 'Baik')
+                                <span class="bg-green-100 text-green-800 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border border-green-200 shrink-0">
+                                    Baik
+                                </span>
+                            @elseif($item->kondisi == 'Rusak Ringan')
+                                <span class="bg-orange-100 text-orange-800 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border border-orange-200 shrink-0">
+                                    Rusak Ringan
+                                </span>
+                            @else
+                                <span class="bg-red-100 text-red-800 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border border-red-200 shrink-0">
+                                    Rusak Berat
+                                </span>
+                            @endif
+                        </div>
 
-            <thead>
+                        <div class="flex items-center gap-4 text-body-sm font-body-sm text-on-surface-variant mb-3">
+                            <div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded-md border border-outline-variant/20">
+                                <span class="material-symbols-outlined text-[18px]">inventory</span>
+                                <span class="font-semibold text-on-surface">{{ $item->jumlah }} Unit</span>
+                            </div>
+                        </div>
 
-                <tr class="border-b">
-
-                    <th class="text-left p-3">
-                        Nama Barang
-                    </th>
-
-                    <th class="text-left p-3">
-                        Jumlah
-                    </th>
-
-                    <th class="text-left p-3">
-                        Kondisi
-                    </th>
-
-                    <th class="text-left p-3">
-                        Keterangan
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            @forelse($lab->inventaris as $item)
-
-                <tr class="border-b">
-
-                    <td class="p-3">
-                        {{ $item->nama_barang }}
-                    </td>
-
-                    <td class="p-3">
-                        {{ $item->jumlah }}
-                    </td>
-
-                    <td class="p-3">
-
-                        @if($item->kondisi == 'Baik')
-
-                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded">
-                                Baik
-                            </span>
-
-                        @elseif($item->kondisi == 'Rusak Ringan')
-
-                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                                Rusak Ringan
-                            </span>
-
+                        @if(!empty($item->keterangan))
+                            <p class="text-body-sm font-body-sm text-on-surface-variant bg-surface-container-low p-2.5 rounded-lg border border-dashed border-outline-variant break-words">
+                                {{ $item->keterangan }}
+                            </p>
                         @else
-
-                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded">
-                                Rusak Berat
-                            </span>
-
+                            <p class="text-body-sm font-body-sm text-on-surface-variant/50 bg-surface-container-low p-2.5 rounded-lg border border-dashed border-outline-variant italic">
+                                Tidak ada keterangan tambahan.
+                            </p>
                         @endif
-
-                    </td>
-
-                    <td class="p-3">
-                        {{ $item->keterangan }}
-                    </td>
-
-                </tr>
-
-            @empty
-
-                <tr>
-
-                    <td colspan="4"
-                        class="p-6 text-center text-gray-500">
-
-                        Tidak ada inventaris
-
-                    </td>
-
-                </tr>
-
-            @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+                    </div>
+                @empty
+                    <div class="bg-surface-container-low border-2 border-dashed border-outline-variant rounded-xl p-12 flex flex-col items-center justify-center text-center">
+                        <div class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center mb-4 text-outline">
+                            <span class="material-symbols-outlined text-3xl">inventory_2</span>
+                        </div>
+                        <h4 class="text-body-lg font-bold text-on-surface-variant">Tidak ada inventaris</h4>
+                        <p class="text-body-sm text-on-surface-variant max-w-[280px] mt-1">Belum ada data barang atau aset yang terdaftar untuk laboratorium ini.</p>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+    @endforeach
 </div>
-
-@endforeach
-
 @endsection
