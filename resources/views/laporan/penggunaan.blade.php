@@ -73,10 +73,14 @@
     <section>
         <div class="flex items-center justify-between mb-4 px-2">
             <h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold">Detail Penggunaan</h3>
-            <button type="button" class="text-primary font-label-md font-semibold hover:underline flex items-center gap-1 transition-colors">
-                <span class="material-symbols-outlined text-lg">download</span>
-                <span>Export PDF</span>
-            </button>
+            <div class="mb-4 flex gap-2">
+                <a href="{{ route('laporan.penggunaan.preview') }}" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded">
+                    Preview & Cetak
+                </a>
+                <a href="{{ route('laporan.penggunaan.download') }}" class="px-4 py-2 bg-green-600 text-white rounded">
+                    Download PDF
+                </a>
+            </div>
         </div>
 
         <div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden shadow-sm">

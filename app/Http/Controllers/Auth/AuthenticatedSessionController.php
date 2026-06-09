@@ -28,6 +28,9 @@ class AuthenticatedSessionController extends Controller
         // 2. Coba autentikasi
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            session(['role' => Auth::user()->role]);
+
             return redirect()->intended(RouteServiceProvider::HOME);
         }
 

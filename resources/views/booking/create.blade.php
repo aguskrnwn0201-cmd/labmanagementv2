@@ -55,6 +55,11 @@
     </div>
 
     <div class="mb-4">
+    <label class="block font-semibold">Lembaga</label>
+    <input type="text" name="lembaga" class="w-full border rounded p-2" placeholder="Contoh: SMK Negeri 1" required>
+</div>
+
+    <div class="mb-4">
         <label>No HP</label>
         <input type="text"
                name="no_hp"
@@ -96,11 +101,9 @@
     </div>
 
     <div class="mb-4">
-        <label>Keperluan</label>
-        <textarea name="keperluan"
-                  rows="4"
-                  class="w-full border rounded p-2"></textarea>
-    </div>
+    <label class="block font-semibold">Keperluan</label>
+    <textarea name="keperluan" class="w-full border rounded p-2" required></textarea>
+</div>
 
     <button
         class="bg-blue-600 text-white px-4 py-2 rounded">

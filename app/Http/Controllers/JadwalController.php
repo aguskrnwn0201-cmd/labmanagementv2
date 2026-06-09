@@ -8,38 +8,35 @@ use Illuminate\Http\Request;
 
 class JadwalController extends Controller
 {
+    // Helper untuk mengecek akses teknisi
+    private function authorizeTeknisi()
+    {
+        if (auth()->user()->role !== 'teknisi' && auth()->user()->role !== 'admin') {
+            abort(403, 'Anda tidak memiliki akses sebagai teknisi atau admin.');
+        }
+    }
+
     public function index()
     {
-        // Mengambil data jadwal yang diurutkan
         $jadwals = Jadwal::with('lab')
             ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
             ->orderBy('jam_mulai')
             ->get();
 
-        // MENGAMBIL DATA LAB agar bisa dipakai di filter dropdown view index
         $labs = Lab::all();
-
-        // Mengirimkan kedua variabel ke view
         return view('jadwal.index', compact('jadwals', 'labs'));
     }
 
     public function create()
     {
-        // Memperbaiki logika akses
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
-
-        $labs = Lab::where('status', 'aktif')->get();
-
+        $this->authorizeTeknisi();
+        $labs = Lab::all();
         return view('jadwal.create', compact('labs'));
     }
 
     public function store(Request $request)
     {
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
+        $this->authorizeTeknisi();
 
         $request->validate([
             'lab_id'         => 'required|exists:labs,id',
@@ -51,44 +48,29 @@ class JadwalController extends Controller
             'kelas'          => 'required',
         ]);
 
-        $conflict = Jadwal::where('lab_id', $request->lab_id)
-            ->where('hari', $request->hari)
-            ->where(function ($query) use ($request) {
-                $query->where('jam_mulai', '<', $request->jam_selesai)
-                      ->where('jam_selesai', '>', $request->jam_mulai);
-            })
-            ->exists();
-
-        if ($conflict) {
-            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal yang sudah ada.']);
+        if ($this->isBentrok($request)) {
+            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain.']);
         }
 
         Jadwal::create($request->all());
-
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil ditambahkan.');
     }
 
     public function show(Jadwal $jadwal)
     {
-        $jadwal->load('lab');
-        return view('jadwal.show', compact('jadwal'));
+        return view('jadwal.show', ['jadwal' => $jadwal->load('lab')]);
     }
 
     public function edit(Jadwal $jadwal)
     {
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
+        $this->authorizeTeknisi();
         $labs = Lab::where('status', 'aktif')->get();
-
         return view('jadwal.edit', compact('jadwal', 'labs'));
     }
 
     public function update(Request $request, Jadwal $jadwal)
     {
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
+        $this->authorizeTeknisi();
         
         $request->validate([
             'lab_id'         => 'required|exists:labs,id',
@@ -100,31 +82,35 @@ class JadwalController extends Controller
             'kelas'          => 'required',
         ]);
 
-        $conflict = Jadwal::where('id', '!=', $jadwal->id)
-            ->where('lab_id', $request->lab_id)
-            ->where('hari', $request->hari)
-            ->where(function ($query) use ($request) {
-                $query->where('jam_mulai', '<', $request->jam_selesai)
-                      ->where('jam_selesai', '>', $request->jam_mulai);
-            })
-            ->exists();
-
-        if ($conflict) {
-            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal yang sudah ada.']);
+        if ($this->isBentrok($request, $jadwal->id)) {
+            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain.']);
         }
 
         $jadwal->update($request->all());
-
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
     }
 
     public function destroy(Jadwal $jadwal)
     {
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
+        $this->authorizeTeknisi();
         $jadwal->delete();
-
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
+    }
+
+    // Fungsi pembantu (Private) untuk mengecek bentrok
+    private function isBentrok(Request $request, $ignoreId = null)
+    {
+        $query = Jadwal::where('lab_id', $request->lab_id)
+            ->where('hari', $request->hari)
+            ->where(function ($q) use ($request) {
+                $q->where('jam_mulai', '<', $request->jam_selesai)
+                  ->where('jam_selesai', '>', $request->jam_mulai);
+            });
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        return $query->exists();
     }
 }

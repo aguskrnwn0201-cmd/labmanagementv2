@@ -11,6 +11,7 @@ class Booking extends Model
         'tipe_pemohon',
         'nama_pemohon',
         'kelas',
+        'lembaga',
         'no_hp',
         'tanggal_booking',
         'jam_mulai',

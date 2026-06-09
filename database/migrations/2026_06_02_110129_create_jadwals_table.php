@@ -36,7 +36,7 @@ return new class extends Migration
 
     $table->string('semester')->nullable();
 
-    $table->string('tahun_ajaran')->nullable();
+    $table->string('lembaga')->nullable();
 
 
     $table->timestamps();

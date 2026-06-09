@@ -31,15 +31,26 @@ class LaporanInventarisController extends Controller
         );
     }
 
-    public function exportExcel()
+    public function previewExcel()
     {
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
-
-        return Excel::download(
-            new InventarisExport(),
-            'inventaris-' . now()->format('Y-m') . '.xlsx'
-        );
+        // Mengambil data untuk ditampilkan di view (HTML)
+        $labs = Lab::with('inventaris')->orderBy('nama_lab')->get();
+        
+        // Anda bisa membuat file view baru: resources/views/laporan/inventaris_preview.blade.php
+        return view('laporan.inventaris_preview', compact('labs'));
     }
+
+    public function exportExcel()
+        {
+            // Menggunakan Auth langsung (lebih akurat daripada session)
+            if (auth()->check() && auth()->user()->role === 'teknisi') {
+                return Excel::download(
+                    new InventarisExport(),
+                    'inventaris-' . now()->format('Y-m') . '.xlsx'
+                );
+            }
+
+            // Jika bukan teknisi, lempar 403
+            abort(403, 'Anda tidak memiliki akses sebagai teknisi.');
+        }
 }

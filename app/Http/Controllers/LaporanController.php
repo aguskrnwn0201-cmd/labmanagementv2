@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
@@ -52,4 +53,18 @@ class LaporanController extends Controller
         )
     );
 }
+
+        public function previewPdf()
+            {
+                $data = Booking::with(['lab'])->get();
+                return view('laporan.pdf_penggunaan', compact('data'));
+            }
+
+        public function exportPdf()
+            {
+                $data = Booking::with(['lab'])->get();
+                $pdf = Pdf::loadView('laporan.pdf_penggunaan', compact('data'));
+                return $pdf->stream('laporan-penggunaan.pdf'); // 'stream' untuk preview, 'download' untuk unduh
+            }
+
 }

@@ -32,6 +32,7 @@ class BookingController extends Controller
         $request->validate([
             'lab_id'          => 'required|exists:labs,id',
             'tipe_pemohon'    => 'required',
+            'lembaga'     => 'required|string|max:255',
             'nama_pemohon'    => 'required',
             'no_hp'           => 'required',
             'tanggal_booking' => [
@@ -111,6 +112,7 @@ class BookingController extends Controller
             'lab_id'         => $request->lab_id,
             'tipe_pemohon'   => $request->tipe_pemohon,
             'nama_pemohon'   => $request->nama_pemohon,
+            'lembaga'   => $request->lembaga,
             'kelas'          => $request->kelas,
             'no_hp'          => $request->no_hp,
             'tanggal_booking' => $request->tanggal_booking,

@@ -8,10 +8,14 @@
             <h2 class="text-headline-md font-headline-md text-on-surface font-bold">Laporan Inventaris</h2>
             <p class="text-body-sm font-body-sm text-on-surface-variant">Data lengkap aset dan peralatan laboratorium aktif.</p>
         </div>
-        <a href="{{ route('laporan.inventaris.excel') }}" class="flex items-center justify-center gap-2 bg-tertiary-container text-on-tertiary-container px-6 py-3 rounded-xl font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all decoration-none">
-            <span class="material-symbols-outlined">description</span>
-            <span>Export Excel</span>
-        </a>
+        <div class="mb-4 flex gap-2">
+    <a href="{{ route('laporan.inventaris.preview') }}" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        Preview Excel
+    </a>
+    <a href="{{ route('laporan.inventaris.excel') }}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+        Download Excel
+    </a>
+    </div>
     </div>
 
     @foreach($labs as $lab)

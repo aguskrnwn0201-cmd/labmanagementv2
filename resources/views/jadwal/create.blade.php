@@ -8,6 +8,15 @@
         Tambah Jadwal
     </h1>
 
+    <script>
+    document.querySelectorAll('input[name="semester"]').forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+            document.querySelectorAll('label').forEach(el => el.classList.remove('bg-blue-100', 'border-blue-500'));
+            e.target.parentElement.classList.add('bg-blue-100', 'border-blue-500');
+        });
+    });
+</script>
+
     @if ($errors->any())
         <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
             <ul>
@@ -84,20 +93,24 @@
                        class="w-full border rounded p-2">
             </div>
 
-            <div>
-                <label>Semester</label>
-                <input type="text"
-                       name="semester"
-                       class="w-full border rounded p-2">
-            </div>
+           <div class="mb-4">
+    <label class="block font-semibold">Lembaga</label>
+    <input type="text" name="lembaga" class="w-full border rounded p-2" placeholder="Contoh: SMK Negeri 1" required>
+</div>
 
-            <div>
-                <label>Tahun Ajaran</label>
-                <input type="text"
-                       name="tahun_ajaran"
-                       placeholder="2025/2026"
-                       class="w-full border rounded p-2">
-            </div>
+<div class="mb-4">
+    <label class="block font-semibold mb-2">Semester</label>
+    <div class="flex gap-4">
+        <label class="flex items-center gap-2 cursor-pointer bg-gray-100 px-4 py-2 rounded-lg border hover:bg-blue-50">
+            <input type="radio" name="semester" value="Ganjil" class="w-4 h-4" checked>
+            Ganjil
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer bg-gray-100 px-4 py-2 rounded-lg border hover:bg-blue-50">
+            <input type="radio" name="semester" value="Genap" class="w-4 h-4">
+            Genap
+        </label>
+    </div>
+</div>
 
         </div>
 

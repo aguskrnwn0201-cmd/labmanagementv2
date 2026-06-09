@@ -1,75 +1,67 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LandingController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GuruController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\LabController;
-use App\Http\Controllers\JadwalController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\KalenderController;
-use App\Http\Controllers\InventarisController;
-use App\Http\Controllers\LaporanKerusakanController;
-use App\Http\Controllers\LaporanController;
-use App\Http\Controllers\LaporanInventarisController;
+use App\Http\Controllers\{
+    LandingController, DashboardController, GuruController, SiswaController,
+    LabController, JadwalController, BookingController, KalenderController,
+    InventarisController, LaporanKerusakanController, LaporanController,
+    LaporanInventarisController, UserController
+};
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes (Akses Tanpa Login)
+| Public Routes
 |--------------------------------------------------------------------------
 */
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
-
 /*
 |--------------------------------------------------------------------------
-| Protected Routes (Wajib Login & Memiliki Session Auth)
+| Protected Routes (Wajib Login)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // 1. Route Dashboard Utama & Logout Role
+    // --- Dashboard & Session ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
     Route::post('/logout-role', function () {
         session()->forget('role');
         return redirect('/');
     })->name('role.logout');
 
-    // 2. Fitur Umum (Bisa diakses Teknisi & Guru)
+    // --- Core Modules ---
     Route::get('/kalender', [KalenderController::class, 'index'])->name('kalender.index');
+    
     Route::resource('booking', BookingController::class);
     Route::resource('laporan-kerusakan', LaporanKerusakanController::class);
-
-    // 3. Manajemen Lab & Jadwal (Akses Kontrol Utama)
     Route::resource('labs', LabController::class);
     Route::resource('jadwal', JadwalController::class);
+    Route::resource('inventaris', InventarisController::class)->parameters(['inventaris' => 'inventaris']);
 
-    // 4. Manajemen Inventaris Barang Lab
-    Route::resource('inventaris', InventarisController::class)->parameters([
-        'inventaris' => 'inventaris'
-    ]);
-
-    // 5. Modul Pelaporan (Export & Rekapitulasi)
+    // --- Reporting Module ---
     Route::prefix('laporan')->name('laporan.')->group(function () {
+        
+        // Laporan Penggunaan
         Route::get('/penggunaan', [LaporanController::class, 'penggunaan'])->name('penggunaan');
+        Route::get('/penggunaan/preview', [LaporanController::class, 'previewPdf'])->name('penggunaan.preview');
+        Route::get('/penggunaan/download', [LaporanController::class, 'exportPdf'])->name('penggunaan.download');
+
+        // Laporan Inventaris
         Route::get('/inventaris', [LaporanInventarisController::class, 'index'])->name('inventaris');
+        Route::get('/inventaris/preview', [LaporanInventarisController::class, 'previewExcel'])->name('inventaris.preview');
         Route::get('/inventaris/export-excel', [LaporanInventarisController::class, 'exportExcel'])->name('inventaris.excel');
+
+        // Laporan Kerusakan
+        Route::get('/kerusakan', [LaporanKerusakanController::class, 'index'])->name('kerusakan');
+        Route::get('/kerusakan/preview', [LaporanKerusakanController::class, 'previewPdf'])->name('kerusakan.preview');
+        Route::get('/kerusakan/export-pdf', [LaporanKerusakanController::class, 'exportPdf'])->name('kerusakan.pdf');
     });
 
-    // 6. Route Legacy Dashboard Role Spesifik (Jika Masih Digunakan)
+    // --- User & Role Management ---
     Route::get('/guru', [GuruController::class, 'dashboard'])->name('guru.dashboard');
     Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
+    Route::resource('users', UserController::class)->only(['index', 'store']);
 
-    // 7. User Manage
-    Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
-   Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Laravel Breeze / Jetstream Auth Routes (Login, Register, dll)
-|--------------------------------------------------------------------------
-*/
 require __DIR__.'/auth.php';

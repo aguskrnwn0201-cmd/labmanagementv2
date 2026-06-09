@@ -6,6 +6,7 @@ use App\Models\Lab;
 use App\Models\LaporanKerusakan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanKerusakanController extends Controller
 {
@@ -98,20 +99,16 @@ return view(
 
 }
 
-public function update(
-Request $request,
-LaporanKerusakan $laporan_kerusakan
-)
+public function update(Request $request, LaporanKerusakan $laporan_kerusakan)
 {
-    if (session('role') !== 'teknisi') {
+    // Ganti pengecekan session menjadi auth()
+    if (auth()->user()->role !== 'teknisi') {
+        abort(403, 'Hanya teknisi yang bisa mengubah status.');
+    }
 
-    abort(403);
-
-}
-
-$request->validate([
-'status' => 'required'
-]);
+    $request->validate([
+        'status' => 'required'
+    ]);
 
 
 $laporan_kerusakan->update([
@@ -157,5 +154,23 @@ return redirect()
 
 }
 
+public function previewPdf()
+{
+    $laporans = LaporanKerusakan::with('lab')->get();
+    // Gunakan view yang sama dengan export
+    return view('laporan-kerusakan.pdf', compact('laporans'));
+}
 
+public function exportPdf()
+{
+    // Gunakan pengecekan auth()->user()
+    if (auth()->user()->role !== 'teknisi') {
+        abort(403, 'Anda tidak memiliki akses.');
+    }
+
+    $laporans = LaporanKerusakan::with('lab')->get();
+    $pdf = Pdf::loadView('laporan-kerusakan.pdf', compact('laporans'));
+    
+    return $pdf->download('laporan-kerusakan-' . now()->format('Y-m-d') . '.pdf');
+}
 }
