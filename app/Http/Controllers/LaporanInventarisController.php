@@ -11,9 +11,15 @@ class LaporanInventarisController extends Controller
 {
     public function index()
     {
-        if (session('role') !== 'teknisi') {
-            abort(403);
+        if (auth()->check()) {
+        $userRole = auth()->user()->role;
+        if ($userRole !== 'teknisi' && $userRole !== 'admin') {
+            abort(403, 'Anda tidak memiliki akses.');
         }
+    } else {
+        // Jika belum login, arahkan ke halaman login
+        return redirect()->route('login');
+    }
 
         $labs = Lab::with('inventaris')
             ->orderBy('nama_lab')

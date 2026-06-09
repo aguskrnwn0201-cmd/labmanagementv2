@@ -235,24 +235,36 @@
                     </a>
                     <a href="{{ route('laporan.inventaris') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.inventaris') ? 'nav-active' : '' }}">
                         <span class="material-symbols-outlined">history_edu</span>
-                        <span>Inventaris</span>
+                        <span>Laporan Inventaris</span>
+                    </a>
+                @endif
+
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'teknisi')
+                    <div class="pt-4 pb-2 px-4 text-xs font-bold text-outline uppercase tracking-wider">
+                        Admin Tools
+                    </div>
+                    <a href="{{ route('users.index') }}" 
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
+                        <span class="material-symbols-outlined">manage_accounts</span>
+                        <span>Manajemen User</span>
                     </a>
                 @endif
 
             @endif
         </nav>
 
-        @if(session()->has('role'))
-            <div class="p-4 border-t border-outline-variant/20">
-                <form action="{{ route('role.logout') }}" method="POST" id="logout-form">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center justify-center gap-3 px-4 py-3 text-error bg-error/10 rounded-xl font-bold hover:bg-error hover:text-white transition-all duration-200 active:scale-95">
-                        <span class="material-symbols-outlined">logout</span>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </div>
-        @endif
+     @if(auth()->check())
+    <div class="p-4 border-t border-outline-variant/20">
+        {{-- Pastikan route 'logout' sesuai dengan yang ada di routes/web.php --}}
+        <form action="{{ route('logout') }}" method="POST" id="logout-form">
+            @csrf
+            <button type="submit" class="w-full flex items-center justify-center gap-3 px-4 py-3 text-error bg-error/10 rounded-xl font-bold hover:bg-error hover:text-white transition-all duration-200 active:scale-95">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </button>
+        </form>
+    </div>
+@endif
     </aside>
 
     <div class="min-h-screen flex flex-col lg:pl-[280px]">

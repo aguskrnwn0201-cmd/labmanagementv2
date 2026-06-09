@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 class InventarisController extends Controller
 {
     private function cekTeknisi()
-    {
-        if (session('role') !== 'teknisi') {
-            abort(403);
-        }
+    {// Cek session, jika tidak ada, ambil dari database user yang login
+    $role = session('role') ?? auth()->user()->role;
+
+    if ($role !== 'teknisi' && $role !== 'admin') {
+        abort(403);
+    }
     }
 
     /**

@@ -62,6 +62,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/guru', [GuruController::class, 'dashboard'])->name('guru.dashboard');
     Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
 
+    // 7. User Manage
+    Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+   Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
 });
 
 /*

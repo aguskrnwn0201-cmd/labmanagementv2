@@ -1,116 +1,56 @@
 <x-guest-layout>
-    <div class="absolute inset-0 lab-pattern -z-10"></div>
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-primary opacity-5 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-secondary opacity-5 rounded-full blur-3xl"></div>
-
-    <div class="w-full max-w-[400px] z-10 mx-auto my-gutter">
+    <div class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-900">
         
-        <x-auth-session-status class="mb-4" :status="session('status')" />
-
-        <div class="bg-white border border-outline-variant rounded-lg shadow-sm p-6 md:p-8">
-            
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-container rounded-full mb-4">
-                    <span class="material-symbols-outlined text-on-primary-container !text-3xl">biotech</span>
+        <header class="w-full top-0 sticky bg-white border-b border-gray-200 shadow-sm z-50">
+            <div class="flex items-center justify-between px-4 md:px-8 py-4 max-w-[1440px] mx-auto">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-blue-600">science</span>
+                    <h1 class="text-lg md:text-2xl font-bold text-blue-600">Academic Core Lab Management</h1>
                 </div>
-                <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">Selamat Datang</h1>
-                <p class="font-body-sm text-body-sm text-on-surface-variant">Silakan masuk ke akun Lab Management Anda</p>
             </div>
+        </header>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                @csrf
-
-                <div>
-                    <label class="block font-label-sm text-label-sm text-on-surface mb-1.5" for="email">Email Address</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">mail</span>
-                        <input id="email" 
-                               type="email" 
-                               name="email" 
-                               value="{{ old('email') }}" 
-                               required 
-                               autofocus 
-                               autocomplete="username" 
-                               placeholder="nama@institusi.ac.id"
-                               class="w-full pl-10 pr-4 py-2.5 bg-white border border-outline rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-body-md" />
+        <main class="flex-grow flex flex-col items-center justify-center px-4 py-10">
+            <div class="w-full max-w-[420px] bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-10">
+                <div class="flex flex-col items-center text-center mb-8">
+                    <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-blue-600 text-3xl">biotech</span>
                     </div>
-                    <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs text-error" />
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Selamat Datang</h2>
+                    <p class="text-sm text-gray-600">Silakan masuk ke akun Lab Management Anda</p>
                 </div>
 
-                <div>
-                    <div class="flex justify-between items-center mb-1.5">
-                        <label class="block font-label-sm text-label-sm text-on-surface" for="password">Password</label>
-                        @if (Route::has('password.request'))
-                            <a class="font-label-sm text-label-sm text-primary hover:underline transition-all" href="{{ route('password.request') }}">
-                                {{ __('Lupa password?') }}
-                            </a>
-                        @endif
+                <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                    @csrf
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-gray-700" for="email">Email</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-xl"></span>
+                            <input class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all" 
+                                   id="username" type="text" name="username" value="{{ old('username') }}" required autofocus />
+                        </div>
+                        <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs text-red-600" />
                     </div>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">lock</span>
-                        <input id="password" 
-                               type="password" 
-                               name="password" 
-                               required 
-                               autocomplete="current-password" 
-                               placeholder="••••••••"
-                               class="w-full pl-10 pr-12 py-2.5 bg-white border border-outline rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-body-md" />
-                        
-                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors p-1 flex items-center justify-center">
-                            <span class="material-symbols-outlined" id="passwordIcon">visibility</span>
-                        </button>
+
+                    <div class="space-y-1.5" x-data="{ show: false }">
+                        <label class="block text-xs font-semibold text-gray-700" for="password">Password</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-xl"></span>
+                            <input class="w-full pl-10 pr-12 py-2.5 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all" 
+                                   id="password" :type="show ? 'text' : 'password'" name="password" required placeholder=""/>
+                            <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600">
+                                <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+                            </button>
+                        </div>
+                        <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs text-red-600" />
                     </div>
-                    <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs text-error" />
-                </div>
 
-                <div class="flex items-center">
-                    <input id="remember_me" 
-                           type="checkbox" 
-                           name="remember" 
-                           class="w-4 h-4 text-primary border-outline rounded focus:ring-primary transition-all" />
-                    <label for="remember_me" class="ml-2 font-body-sm text-body-sm text-on-surface-variant cursor-pointer">
-                        {{ __('Remember me') }}
-                    </label>
-                </div>
-
-                <button type="submit" class="w-full bg-primary text-on-primary font-headline-sm text-headline-sm py-3 rounded-lg hover:bg-opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm font-semibold">
-                    <span>Masuk</span>
-                    <span class="material-symbols-outlined">login</span>
-                </button>
-            </form>
-
-            <div class="mt-8 pt-6 border-t border-outline-variant text-center">
-                <p class="font-body-sm text-body-sm text-on-surface-variant">
-                    Belum memiliki akses? <br/>
-                    <a class="text-primary font-semibold hover:underline" href="#">Hubungi Administrator Lab</a>
-                </p>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-md active:scale-[0.98]">
+                        Masuk
+                    </button>
+                </form>
             </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-2 gap-4">
-            <div class="bg-surface-container-high rounded-lg p-4 flex flex-col items-center justify-center text-center border border-outline-variant/40">
-                <span class="material-symbols-outlined text-primary mb-2">verified_user</span>
-                <span class="font-label-sm text-label-sm text-on-surface-variant">Secure Access</span>
-            </div>
-            <div class="bg-surface-container-high rounded-lg p-4 flex flex-col items-center justify-center text-center border border-outline-variant/40">
-                <span class="material-symbols-outlined text-primary mb-2">database</span>
-                <span class="font-label-sm text-label-sm text-on-surface-variant">Real-time Sync</span>
-            </div>
-        </div>
+        </main>
     </div>
-
-    <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const passwordIcon = document.getElementById('passwordIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.innerText = 'visibility_off';
-            } else {
-                passwordInput.type = 'password';
-                passwordIcon.innerText = 'visibility';
-            }
-        }
-    </script>
 </x-guest-layout>
