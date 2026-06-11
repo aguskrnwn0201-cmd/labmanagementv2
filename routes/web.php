@@ -10,35 +10,44 @@ use App\Http\Controllers\{
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| Public Routes (Bisa Diakses Siapa Saja: Teknisi, Guru, Siswa)
 |--------------------------------------------------------------------------
 */
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
+// --- Halaman Utama Guru & Siswa (Guest Mode) ---
+Route::get('/guru', [GuruController::class, 'dashboard'])->name('guru.dashboard');
+Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
+
+// --- Tombol Keluar dari Role (Dipindah ke Luar Auth Agar Guru/Siswa Bisa Mengaksesnya) ---
+Route::post('/logout-role', function () {
+    session()->forget('role');
+    return redirect('/');
+})->name('role.logout');
+
+// --- Fitur yang Dipakai Bersama (Dikeluarkan dari Middleware Auth agar Guru & Siswa Bisa Akses) ---
+Route::resource('kalender', KalenderController::class)->only(['index']);
+Route::resource('booking', BookingController::class);
+Route::resource('laporan-kerusakan', LaporanKerusakanController::class);
+Route::resource('jadwal', JadwalController::class);
+
+
 /*
 |--------------------------------------------------------------------------
-| Protected Routes (Wajib Login)
+| Protected Routes (KHUSUS TEKNISI - Wajib Login)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // --- Dashboard & Session ---
+    // --- Dashboard Teknisi ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/logout-role', function () {
-        session()->forget('role');
-        return redirect('/');
-    })->name('role.logout');
 
-    // --- Core Modules ---
-    Route::get('/kalender', [KalenderController::class, 'index'])->name('kalender.index');
-    
-    Route::resource('booking', BookingController::class);
-    Route::resource('laporan-kerusakan', LaporanKerusakanController::class);
+    // --- Manajemen User & Core Lab Khusus Teknisi ---
+    Route::resource('users', UserController::class)->only(['index', 'store']);
     Route::resource('labs', LabController::class);
-    Route::resource('jadwal', JadwalController::class);
     Route::resource('inventaris', InventarisController::class)->parameters(['inventaris' => 'inventaris']);
 
-    // --- Reporting Module ---
+    // --- Reporting Module (Hanya Teknisi) ---
     Route::prefix('laporan')->name('laporan.')->group(function () {
         
         // Laporan Penggunaan
@@ -56,11 +65,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kerusakan/preview', [LaporanKerusakanController::class, 'previewPdf'])->name('kerusakan.preview');
         Route::get('/kerusakan/export-pdf', [LaporanKerusakanController::class, 'exportPdf'])->name('kerusakan.pdf');
     });
-
-    // --- User & Role Management ---
-    Route::get('/guru', [GuruController::class, 'dashboard'])->name('guru.dashboard');
-    Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
-    Route::resource('users', UserController::class)->only(['index', 'store']);
 
 });
 

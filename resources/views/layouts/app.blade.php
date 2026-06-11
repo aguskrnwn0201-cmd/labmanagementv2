@@ -145,130 +145,116 @@
             <span class="font-headline-md text-headline-md text-white">Management Lab</span>
         </div>
 
+        {{-- CONTAINER NAVIGASI UTAMA --}}
         <nav class="flex-1 overflow-y-auto px-4 space-y-1 py-2">
-            <div class="px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Main Menu</div>
+            
+            {{-- ========================================== --}}
+            {{-- SEKSI MENU GURU (Jika session role adalah 'guru') --}}
+            {{-- ========================================== --}}
+            @if(session('role') == 'guru' || request()->is('guru*'))
+                <div class="px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Menu Guru</div>
 
-            {{-- 1. MENU UTAMA (Selalu muncul untuk siapa pun yang berhasil login) --}}
-            @if(Auth::check())
-                @if(Auth::user()->role == 'guru')
-                    <a href="{{ route('guru.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('guru.dashboard') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
-                @elseif(Auth::user()->role == 'siswa')
-                    <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('siswa.dashboard') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
-                @else
-                    {{-- Default / Teknisi --}}
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('dashboard') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
-                @endif
-            @endif
+                <a href="{{ route('guru.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('guru.dashboard') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">event_note</span>
+                    <span>Jadwal Lab</span>
+                </a>
+                <a href="{{ route('booking.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('booking.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">add_task</span>
+                    <span>Booking Lab</span>
+                </a>
+                <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">report_problem</span>
+                    <span>Laporan Kerusakan</span>
+                </a>
 
-            {{-- Menu Kalender (Bisa dilihat oleh semua akun yang masuk) --}}
-            <a href="{{ route('kalender.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('kalender.index') ? 'nav-active' : '' }}">
-                <span class="material-symbols-outlined">calendar_month</span>
-                <span>Kalender Lab</span>
-            </a>
+            {{-- ========================================== --}}
+            {{-- SEKSI MENU SISWA (Jika session role adalah 'siswa') --}}
+            {{-- ========================================== --}}
+            @elseif(session('role') == 'siswa' || request()->is('siswa*'))
+                <div class="px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Menu Siswa</div>
 
+                <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('siswa.dashboard') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">event_note</span>
+                    <span>Jadwal Lab</span>
+                </a>
+                <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">report_problem</span>
+                    <span>Laporan Kerusakan</span>
+                </a>
 
-            {{-- 2. MENU DINAMIS BERDASARKAN ROLE USER DI DATABASE --}}
-            @if(Auth::check())
-                
-                {{-- AKSES MENU UNTUK GURU --}}
-                @if(Auth::user()->role == 'guru')
-                    <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">event_note</span>
-                        <span>Jadwal Lab</span>
-                    </a>
-                    <a href="{{ route('booking.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('booking.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">add_task</span>
-                        <span>Booking Lab</span>
-                    </a>
-                    <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">report_problem</span>
-                        <span>Laporan Kerusakan</span>
-                    </a>
+            {{-- ========================================== --}}
+            {{-- SEKSI MENU TEKNISI / ADMIN (Default jika tidak ada session role) --}}
+            {{-- ========================================== --}}
+            @else
+                <div class="px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Main Menu (Teknisi)</div>
 
-                {{-- AKSES MENU UNTUK SISWA --}}
-                @elseif(Auth::user()->role == 'siswa')
-                    <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">event_note</span>
-                        <span>Jadwal Lab</span>
-                    </a>
-                    <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">report_problem</span>
-                        <span>Laporan Kerusakan</span>
-                    </a>
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('dashboard') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('kalender.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('kalender.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Kalender Lab</span>
+                </a>
+                <a href="{{ route('labs.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('labs.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">science</span>
+                    <span>Data Lab</span>
+                </a>
+                <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">event_note</span>
+                    <span>Jadwal</span>
+                </a>
+                <a href="{{ route('booking.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('booking.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">add_task</span>
+                    <span>Booking</span>
+                </a>
+                <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">report_problem</span>
+                    <span>Laporan Kerusakan</span>
+                </a>
+                <a href="{{ route('inventaris.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('inventaris.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    <span>Inventaris</span>
+                </a>
 
-                {{-- AKSES MENU UTK TEKNISI / ADMIN --}}
-                @else
-                    <a href="{{ route('labs.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('labs.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">science</span>
-                        <span>Data Lab</span>
-                    </a>
-                    <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">event_note</span>
-                        <span>Jadwal</span>
-                    </a>
-                    <a href="{{ route('booking.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('booking.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">add_task</span>
-                        <span>Booking</span>
-                    </a>
-                    <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">report_problem</span>
-                        <span>Laporan Kerusakan</span>
-                    </a>
-                    <a href="{{ route('inventaris.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('inventaris.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">inventory_2</span>
-                        <span>Inventaris</span>
-                    </a>
+                <div class="mt-4 px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Reporting</div>
+                <a href="{{ route('laporan.penggunaan') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.penggunaan') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>Penggunaan Lab</span>
+                </a>
+                <a href="{{ route('laporan.inventaris') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.inventaris') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">history_edu</span>
+                    <span>Laporan Inventaris</span>
+                </a>
 
-                    <div class="mt-4 px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Reporting</div>
-                    <a href="{{ route('laporan.penggunaan') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.penggunaan') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span>Penggunaan Lab</span>
-                    </a>
-                    <a href="{{ route('laporan.inventaris') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.inventaris') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">history_edu</span>
-                        <span>Laporan Inventaris</span>
-                    </a>
-                @endif
-
-                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'teknisi')
-                    <div class="pt-4 pb-2 px-4 text-xs font-bold text-outline uppercase tracking-wider">
-                        Admin Tools
-                    </div>
-                    <a href="{{ route('users.index') }}" 
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
-                        <span class="material-symbols-outlined">manage_accounts</span>
-                        <span>Manajemen User</span>
-                    </a>
-                @endif
-
+                <div class="pt-4 pb-2 px-4 text-xs font-bold text-outline uppercase tracking-wider">Admin Tools</div>
+                <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('users.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <span>Manajemen User</span>
+                </a>
             @endif
         </nav>
-
-     @if(auth()->check())
-    <div class="p-4 border-t border-outline-variant/20">
-        {{-- Pastikan route 'logout' sesuai dengan yang ada di routes/web.php --}}
-        <form action="{{ route('logout') }}" method="POST" id="logout-form">
-            @csrf
-            <button type="submit" class="w-full flex items-center justify-center gap-3 px-4 py-3 text-error bg-error/10 rounded-xl font-bold hover:bg-error hover:text-white transition-all duration-200 active:scale-95">
-                <span class="material-symbols-outlined">logout</span>
-                <span>Logout</span>
-            </button>
-        </form>
-    </div>
-@endif
+       {{-- TOMBOL KELUAR / LOGOUT (Muncul untuk semua Role) --}}
+        <div class="p-4 border-t border-outline-variant/20">
+            <form action="{{ route('role.logout') }}" method="POST" id="logout-form">
+                @csrf
+                <button type="submit" class="w-full flex items-center justify-center gap-3 px-4 py-3 text-error bg-error/10 rounded-xl font-bold hover:bg-error hover:text-white transition-all duration-200 active:scale-95">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Kembali / Keluar</span>
+                </button>
+            </form>
+        </div>
     </aside>
 
     <div class="min-h-screen flex flex-col lg:pl-[280px]">
-        
         <header class="sticky top-0 z-30 bg-surface dark:bg-surface-dim border-b border-outline-variant h-16 flex items-center justify-between px-margin-mobile md:px-margin-desktop transition-all duration-200">
             <div class="flex items-center gap-4">
                 <button class="p-2 rounded-full hover:bg-surface-container-low transition-all duration-200 active:scale-90 text-primary lg:hidden" onclick="toggleDrawer()">
@@ -291,7 +277,6 @@
         <main class="flex-1 p-margin-mobile md:p-margin-desktop space-y-6 max-w-7xl mx-auto w-full">
             @yield('content')
         </main>
-        
     </div>
 
     <script>
@@ -300,13 +285,11 @@
             const overlay = document.getElementById('drawerOverlay');
             
             if (drawer.classList.contains('-translate-x-full')) {
-                // Open Sidebar Menu
                 drawer.classList.remove('-translate-x-full');
                 overlay.classList.remove('pointer-events-none', 'opacity-0');
                 overlay.classList.add('opacity-100');
                 document.body.classList.add('overflow-hidden');
             } else {
-                // Close Sidebar Menu
                 drawer.classList.add('-translate-x-full');
                 overlay.classList.add('pointer-events-none', 'opacity-0');
                 overlay.classList.remove('opacity-100');
@@ -314,7 +297,6 @@
             }
         }
 
-        // Close navigation menu automatically on pressing 'Escape' keyboard key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const drawer = document.getElementById('mainDrawer');
