@@ -6,18 +6,21 @@
         <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Laporan Kerusakan</h1>
         <p class="font-body-md text-body-md text-on-surface-variant mt-1">Kelola dan pantau status perbaikan fasilitas laboratorium</p>
     </div>
-    <a href="{{ route('laporan-kerusakan.create') }}" class="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary px-6 py-3 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all shadow-md">
-        <span class="material-symbols-outlined">add_circle</span>
-        <span class="font-label-md text-label-md">Buat Laporan</span>
-    </a>
-    <div class="mb-4 flex gap-2">
-    <a href="{{ route('laporan.kerusakan.preview') }}" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-        Preview PDF
-    </a>
-    <a href="{{ route('laporan.kerusakan.pdf') }}" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-        Download PDF
-    </a>
-</div>
+    
+    <div class="flex flex-wrap items-center gap-3">
+        <a href="{{ route('laporan.kerusakan.preview') }}" target="_blank" class="px-4 py-2.5 border border-outline-variant bg-surface-container-lowest text-on-surface rounded-lg font-bold hover:bg-surface-container-low transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+            <span>Preview PDF</span>
+        </a>
+        <a href="{{ route('laporan.kerusakan.pdf') }}" class="px-4 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            <span>Download PDF</span>
+        </a>
+        <a href="{{ route('laporan-kerusakan.create') }}" class="inline-flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md no-underline">
+            <span class="material-symbols-outlined text-[18px]">add_circle</span>
+            <span class="font-label-md text-label-md">Buat Laporan</span>
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
@@ -74,19 +77,39 @@
         <div class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:shadow-md transition-shadow duration-300">
             <div class="grid grid-cols-1 md:grid-cols-12 flex-1 items-center gap-4">
                 
+                {{-- Bagian Status & Nama Lab --}}
                 <div class="md:col-span-4 space-y-2">
-                    @if($laporan->status == 'pending')
-                        <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-600/20 uppercase tracking-wider">
-                            Pending
-                        </span>
-                    @elseif($laporan->status == 'diproses')
-                        <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 ring-1 ring-inset ring-blue-600/20 uppercase tracking-wider">
-                            Diproses
-                        </span>
+                    {{-- KUNCI BERLAPIS: Jika yang masuk adalah Teknisi/Admin, berikan form pengubah status --}}
+                    @if(Auth::check() && 
+                        strtolower(Auth::user()->role) !== 'guru' && 
+                        strtolower(Auth::user()->role) !== 'siswa' && 
+                        session('role') !== 'guru' && 
+                        session('role') !== 'siswa')
+                        
+                        <form action="{{ route('laporan-kerusakan.update-status', $laporan->id) }}" method="POST" class="block w-full max-w-[150px]">
+                            @csrf
+                            @method('PATCH')
+                            <select name="status" onchange="this.form.submit()" class="w-full text-xs font-bold border border-outline-variant rounded-lg p-1.5 cursor-pointer bg-surface-container-low text-on-surface focus:outline-none focus:ring-1 focus:ring-primary uppercase tracking-wider">
+                                <option value="pending" {{ $laporan->status == 'pending' ? 'selected' : '' }} class="bg-surface-container-lowest text-amber-700 font-bold">Pending</option>
+                                <option value="diproses" {{ $laporan->status == 'diproses' ? 'selected' : '' }} class="bg-surface-container-lowest text-blue-700 font-bold">Diproses</option>
+                                <option value="selesai" {{ $laporan->status == 'selesai' ? 'selected' : '' }} class="bg-surface-container-lowest text-green-700 font-bold">Selesai</option>
+                            </select>
+                        </form>
                     @else
-                        <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-800 ring-1 ring-inset ring-green-600/20 uppercase tracking-wider">
-                            Selesai
-                        </span>
+                        {{-- Jika yang masuk adalah Guru, Siswa, atau Guest, HANYA tampilkan badge statis --}}
+                        @if($laporan->status == 'pending')
+                            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-600/20 uppercase tracking-wider">
+                                Pending
+                            </span>
+                        @elseif($laporan->status == 'diproses')
+                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 ring-1 ring-inset ring-blue-600/20 uppercase tracking-wider">
+                                Diproses
+                            </span>
+                        @else
+                            <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-800 ring-1 ring-inset ring-green-600/20 uppercase tracking-wider">
+                                Selesai
+                            </span>
+                        @endif
                     @endif
 
                     <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">
@@ -114,7 +137,7 @@
             </div>
 
             <div class="flex items-center justify-end border-t lg:border-t-0 border-outline-variant/40 pt-4 lg:pt-0 shrink-0">
-                <a href="{{ route('laporan-kerusakan.show', $laporan->id) }}" class="w-full lg:w-auto inline-flex items-center justify-center gap-2 border border-primary text-primary font-bold px-5 py-2.5 rounded-lg hover:bg-primary-fixed transition-colors text-sm">
+                <a href="{{ route('laporan-kerusakan.show', $laporan->id) }}" class="w-full lg:w-auto inline-flex items-center justify-center gap-2 border border-primary text-primary font-bold px-5 py-2.5 rounded-lg hover:bg-primary-fixed transition-colors text-sm no-underline">
                     <span class="material-symbols-outlined text-[18px]">visibility</span>
                     <span>Detail</span>
                 </a>
@@ -131,7 +154,7 @@
                     Sepertinya semua fasilitas laboratorium dalam kondisi prima. Klik tombol di bawah jika Anda menemukan kerusakan sarana yang perlu ditindaklanjuti.
                 </p>
                 <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('laporan-kerusakan.create') }}" class="bg-primary-container text-on-primary px-6 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm text-sm">
+                    <a href="{{ route('laporan-kerusakan.create') }}" class="bg-primary-container text-on-primary px-6 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm text-sm no-underline">
                         <span class="material-symbols-outlined text-[18px]">add</span>
                         <span>Buat Laporan Pertama</span>
                     </a>

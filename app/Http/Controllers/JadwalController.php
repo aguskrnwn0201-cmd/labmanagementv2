@@ -8,10 +8,14 @@ use Illuminate\Http\Request;
 
 class JadwalController extends Controller
 {
-    // Helper untuk mengecek akses teknisi
+    /**
+     * Helper untuk mengecek akses teknisi / admin.
+     * Sudah diperbaiki agar aman dari error 'null' jika diakses oleh user non-login (Guru/Siswa).
+     */
     private function authorizeTeknisi()
     {
-        if (auth()->user()->role !== 'teknisi' && auth()->user()->role !== 'admin') {
+        // Cek dulu apakah user sedang login, jika tidak login ATAU bukan teknisi/admin, langsung tolak.
+        if (!auth()->check() || (auth()->user()->role !== 'teknisi' && auth()->user()->role !== 'admin')) {
             abort(403, 'Anda tidak memiliki akses sebagai teknisi atau admin.');
         }
     }
@@ -41,15 +45,17 @@ class JadwalController extends Controller
         $request->validate([
             'lab_id'         => 'required|exists:labs,id',
             'hari'           => 'required',
-            'jam_mulai'      => 'required',
-            'jam_selesai'    => 'required|after:jam_mulai',
+            'jam_mulai'      => 'required|date_format:H:i', // Memastikan format 24 jam di backend
+            'jam_selesai'    => 'required|date_format:H:i|after:jam_mulai',
             'mata_pelajaran' => 'required',
             'guru'           => 'required',
             'kelas'          => 'required',
+            'lembaga'        => 'required|string|max:255', // Validasi kolom baru
+            'semester'       => 'required|in:Ganjil,Genap', // Validasi kolom baru
         ]);
 
         if ($this->isBentrok($request)) {
-            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain.']);
+            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain pada jam dan lab yang sama.']);
         }
 
         Jadwal::create($request->all());
@@ -64,7 +70,7 @@ class JadwalController extends Controller
     public function edit(Jadwal $jadwal)
     {
         $this->authorizeTeknisi();
-        $labs = Lab::where('status', 'aktif')->get();
+        $labs = Lab::all(); // Disamakan dengan create agar konsisten
         return view('jadwal.edit', compact('jadwal', 'labs'));
     }
 
@@ -75,15 +81,17 @@ class JadwalController extends Controller
         $request->validate([
             'lab_id'         => 'required|exists:labs,id',
             'hari'           => 'required',
-            'jam_mulai'      => 'required',
-            'jam_selesai'    => 'required|after:jam_mulai',
+            'jam_mulai'      => 'required|date_format:H:i',
+            'jam_selesai'    => 'required|date_format:H:i|after:jam_mulai',
             'mata_pelajaran' => 'required',
             'guru'           => 'required',
             'kelas'          => 'required',
+            'lembaga'        => 'required|string|max:255', // Validasi kolom baru
+            'semester'       => 'required|in:Ganjil,Genap', // Validasi kolom baru
         ]);
 
         if ($this->isBentrok($request, $jadwal->id)) {
-            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain.']);
+            return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain pada jam dan lab yang sama.']);
         }
 
         $jadwal->update($request->all());
@@ -97,7 +105,9 @@ class JadwalController extends Controller
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
     }
 
-    // Fungsi pembantu (Private) untuk mengecek bentrok
+    /**
+     * Fungsi pembantu (Private) untuk mengecek jadwal tabrakan/bentrok
+     */
     private function isBentrok(Request $request, $ignoreId = null)
     {
         $query = Jadwal::where('lab_id', $request->lab_id)

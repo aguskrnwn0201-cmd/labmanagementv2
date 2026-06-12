@@ -31,24 +31,24 @@ class BookingController extends Controller
     {
         $request->validate([
             'lab_id'          => 'required|exists:labs,id',
-            'tipe_pemohon'    => 'required',
-            'lembaga'     => 'required|string|max:255',
-            'nama_pemohon'    => 'required',
-            'no_hp'           => 'required',
+            'tipe_pemohon'    => 'required|in:guru,tentor',
+            'lembaga'         => 'required|string|max:255',
+            'nama_pemohon'    => 'required|string|max:255',
+            'kelas'           => 'nullable|string|max:50',
+            'no_hp'           => 'required|string|max:20',
             'tanggal_booking' => [
                 'required',
                 'date',
                 'after_or_equal:today',
                 'before_or_equal:' . now()->addDays(7)->format('Y-m-d'),
             ],
-            'jam_mulai'   => 'required',
-            'jam_selesai' => 'required|after:jam_mulai',
-            'keperluan'   => 'required',
+            'jam_mulai'       => 'required|date_format:H:i', // Dikunci ke format 24 jam
+            'jam_selesai'     => 'required|date_format:H:i|after:jam_mulai',
+            'jumlah_peserta'  => 'required|integer|min:1',
+            'keperluan'       => 'required|string',
         ], [
-            'tanggal_booking.before_or_equal' =>
-                'Booking hanya dapat dilakukan maksimal 7 hari ke depan.',
-            'tanggal_booking.after_or_equal' =>
-                'Tanggal booking tidak boleh tanggal yang sudah lewat.',
+            'tanggal_booking.before_or_equal' => 'Booking hanya dapat dilakukan maksimal 7 hari ke depan.',
+            'tanggal_booking.after_or_equal'  => 'Tanggal booking tidak boleh tanggal yang sudah lewat.',
         ]);
 
         /*
@@ -56,7 +56,6 @@ class BookingController extends Controller
         | CEK BENTROK DENGAN JADWAL TETAP
         |--------------------------------------------------------------------------
         */
-
         $hariMap = [
             'Monday'    => 'Senin',
             'Tuesday'   => 'Selasa',
@@ -81,7 +80,7 @@ class BookingController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'booking' => 'Lab sedang digunakan untuk jadwal pelajaran.'
+                    'booking' => 'Lab sedang digunakan untuk jadwal pelajaran tetap pada hari tersebut.'
                 ]);
         }
 
@@ -90,7 +89,6 @@ class BookingController extends Controller
         | CEK BENTROK BOOKING LAIN
         |--------------------------------------------------------------------------
         */
-
         $bookingBentrok = Booking::where('lab_id', $request->lab_id)
             ->where('tanggal_booking', $request->tanggal_booking)
             ->where('status', 'accepted')
@@ -104,23 +102,23 @@ class BookingController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'booking' => 'Lab sudah dibooking pada jam tersebut.'
+                    'booking' => 'Lab sudah dibooking oleh pemohon lain pada jam tersebut.'
                 ]);
         }
 
         $booking = Booking::create([
-            'lab_id'         => $request->lab_id,
-            'tipe_pemohon'   => $request->tipe_pemohon,
-            'nama_pemohon'   => $request->nama_pemohon,
-            'lembaga'   => $request->lembaga,
-            'kelas'          => $request->kelas,
-            'no_hp'          => $request->no_hp,
+            'lab_id'          => $request->lab_id,
+            'tipe_pemohon'    => $request->tipe_pemohon,
+            'nama_pemohon'    => $request->nama_pemohon,
+            'lembaga'         => $request->lembaga,
+            'kelas'           => $request->kelas,
+            'no_hp'           => $request->no_hp,
             'tanggal_booking' => $request->tanggal_booking,
-            'jam_mulai'      => $request->jam_mulai,
-            'jam_selesai'    => $request->jam_selesai,
-            'jumlah_peserta' => $request->jumlah_peserta,
-            'keperluan'      => $request->keperluan,
-            'status'         => 'accepted',
+            'jam_mulai'       => $request->jam_mulai,
+            'jam_selesai'     => $request->jam_selesai,
+            'jumlah_peserta'  => $request->jumlah_peserta,
+            'keperluan'       => $request->keperluan,
+            'status'          => 'accepted',
         ]);
 
         $booking->load('lab');
@@ -130,11 +128,11 @@ class BookingController extends Controller
         | KIRIM NOTIFIKASI WHATSAPP
         |--------------------------------------------------------------------------
         */
-
         $message =
             "📅 BOOKING LAB BARU\n\n" .
             "Lab: {$booking->lab->nama_lab}\n" .
             "Pemohon: {$booking->nama_pemohon}\n" .
+            "Lembaga: {$booking->lembaga}\n" .
             "Tanggal: {$booking->tanggal_booking}\n" .
             "Jam: {$booking->jam_mulai} - {$booking->jam_selesai}\n" .
             "Keperluan: {$booking->keperluan}";
@@ -174,23 +172,24 @@ class BookingController extends Controller
     {
         $request->validate([
             'lab_id'          => 'required|exists:labs,id',
-            'tipe_pemohon'    => 'required',
-            'nama_pemohon'    => 'required',
-            'no_hp'           => 'required',
+            'tipe_pemohon'    => 'required|in:guru,siswa',
+            'lembaga'         => 'required|string|max:255', // Ditambahkan validasi lembaga
+            'nama_pemohon'    => 'required|string|max:255',
+            'kelas'           => 'nullable|string|max:50',
+            'no_hp'           => 'required|string|max:20',
             'tanggal_booking' => [
                 'required',
                 'date',
                 'after_or_equal:today',
                 'before_or_equal:' . now()->addDays(7)->format('Y-m-d'),
             ],
-            'jam_mulai'   => 'required',
-            'jam_selesai' => 'required|after:jam_mulai',
-            'keperluan'   => 'required',
+            'jam_mulai'       => 'required|date_format:H:i', // Dikunci ke format 24 jam
+            'jam_selesai'     => 'required|date_format:H:i|after:jam_mulai',
+            'jumlah_peserta'  => 'required|integer|min:1',
+            'keperluan'       => 'required|string',
         ], [
-            'tanggal_booking.before_or_equal' =>
-                'Booking hanya dapat dilakukan maksimal 7 hari ke depan.',
-            'tanggal_booking.after_or_equal' =>
-                'Tanggal booking tidak boleh tanggal yang sudah lewat.',
+            'tanggal_booking.before_or_equal' => 'Booking hanya dapat dilakukan maksimal 7 hari ke depan.',
+            'tanggal_booking.after_or_equal'  => 'Tanggal booking tidak boleh tanggal yang sudah lewat.',
         ]);
 
         $hariMap = [
@@ -210,7 +209,6 @@ class BookingController extends Controller
         | CEK BENTROK DENGAN JADWAL
         |--------------------------------------------------------------------------
         */
-
         $jadwalBentrok = Jadwal::where('lab_id', $request->lab_id)
             ->where('hari', $hariIndonesia)
             ->where(function ($query) use ($request) {
@@ -223,7 +221,7 @@ class BookingController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'booking' => 'Lab sedang digunakan untuk jadwal pelajaran.'
+                    'booking' => 'Lab sedang digunakan untuk jadwal pelajaran tetap.'
                 ]);
         }
 
@@ -232,7 +230,6 @@ class BookingController extends Controller
         | CEK BENTROK BOOKING LAIN
         |--------------------------------------------------------------------------
         */
-
         $bookingBentrok = Booking::where('id', '!=', $booking->id)
             ->where('lab_id', $request->lab_id)
             ->where('tanggal_booking', $request->tanggal_booking)
@@ -247,7 +244,7 @@ class BookingController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'booking' => 'Lab sudah dibooking pada jam tersebut.'
+                    'booking' => 'Lab sudah dibooking oleh pemohon lain pada jam tersebut.'
                 ]);
         }
 
@@ -255,6 +252,7 @@ class BookingController extends Controller
             'lab_id'          => $request->lab_id,
             'tipe_pemohon'    => $request->tipe_pemohon,
             'nama_pemohon'    => $request->nama_pemohon,
+            'lembaga'         => $request->lembaga, // Ditambahkan agar data lembaga ter-update
             'kelas'           => $request->kelas,
             'no_hp'           => $request->no_hp,
             'tanggal_booking' => $request->tanggal_booking,

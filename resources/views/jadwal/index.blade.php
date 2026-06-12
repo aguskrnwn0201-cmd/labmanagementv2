@@ -15,12 +15,19 @@
         </div>
         
         <div class="flex items-center gap-2">
-            @if(Auth::check() && Auth::user()->role != 'guru' && Auth::user()->role != 'siswa')
+            {{-- KUNCI BERLAPIS ATAS: Tombol Tambah Jadwal hanya untuk Teknisi / Admin --}}
+            @if(Auth::check() && 
+                strtolower(Auth::user()->role) !== 'guru' && 
+                strtolower(Auth::user()->role) !== 'siswa' && 
+                session('role') !== 'guru' && 
+                session('role') !== 'siswa')
+                
                 <a href="{{ route('jadwal.create') }}" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition-all no-underline font-label-md text-label-md shadow-sm">
                     <span class="material-symbols-outlined">add</span>
                     <span>Tambah Jadwal</span>
                 </a>
             @endif
+            
             <button class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant px-4 py-2 rounded-lg text-on-surface hover:bg-surface-container-low transition-all font-label-md text-label-md shadow-sm">
                 <span class="material-symbols-outlined text-[20px]">print</span>
                 <span>Cetak</span>
@@ -82,9 +89,7 @@
                         <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Mata Pelajaran</th>
                         <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Guru</th>
                         <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Kelas</th>
-                        @if(Auth::check() && Auth::user()->role != 'guru' && Auth::user()->role != 'siswa')
                         <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Aksi</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant">
@@ -115,28 +120,32 @@
                                 {{ $jadwal->kelas }}
                             </span>
                         </td>
-                        @if(Auth::check() && Auth::user()->role != 'guru' && Auth::user()->role != 'siswa')
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('jadwal.edit', $jadwal) }}" class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-200 px-3 py-1 rounded-md text-xs font-bold transition-colors no-underline">
-                                    <span class="material-symbols-outlined text-sm">edit</span>
-                                    Edit
-                                </a>
-                                <form action="{{ route('jadwal.destroy', $jadwal) }}" method="POST" onsubmit="return confirm('Hapus jadwal ini?')" class="inline">
+                        
+                        {{-- Kolom aksi utama --}}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                            {{-- Tombol Detail selalu bisa diakses oleh siapa saja (termasuk Guru/Siswa) --}}
+                            <a href="{{ route('jadwal.show', $jadwal->id) }}" class="text-primary hover:text-primary-variant mr-3 no-underline">Detail</a>
+
+                            {{-- KUNCI BERLAPIS INDEKS: Menyembunyikan tombol Edit & Hapus dari Guru/Siswa secara mutlak --}}
+                            @if(Auth::check() && 
+                                strtolower(Auth::user()->role) !== 'guru' && 
+                                strtolower(Auth::user()->role) !== 'siswa' && 
+                                session('role') !== 'guru' && 
+                                session('role') !== 'siswa')
+                                
+                                <a href="{{ route('jadwal.edit', $jadwal->id) }}" class="text-blue-600 hover:text-blue-900 mr-3 no-underline">Edit</a>
+                                
+                                <form action="{{ route('jadwal.destroy', $jadwal->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-800 border border-red-200 px-3 py-1 rounded-md text-xs font-bold transition-colors cursor-pointer">
-                                        <span class="material-symbols-outlined text-sm">delete</span>
-                                        Hapus
-                                    </button>
+                                    <button type="submit" class="text-error bg-transparent border-0 p-0 cursor-pointer hover:text-error-variant font-medium text-sm">Hapus</button>
                                 </form>
-                            </div>
+                            @endif
                         </td>
-                        @endif
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ (Auth::check() && Auth::user()->role != 'guru' && Auth::user()->role != 'siswa') ? 7 : 6 }}" class="px-6 py-12 text-center bg-surface-container-low/20">
+                        <td colspan="7" class="px-6 py-12 text-center bg-surface-container-low/20">
                             <div class="flex flex-col items-center justify-center">
                                 <span class="material-symbols-outlined text-4xl text-outline-variant mb-2">event_busy</span>
                                 <p class="font-body-md text-body-md text-on-surface-variant">Belum ada jadwal penggunaan laboratorium.</p>
