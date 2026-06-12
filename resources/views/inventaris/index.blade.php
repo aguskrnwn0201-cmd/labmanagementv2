@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Hero / Header Section -->
 <div class="relative overflow-hidden rounded-xl mb-8 h-48 md:h-64 flex items-center px-8 bg-primary-container text-on-primary">
     <div class="absolute inset-0 z-0">
         <img alt="Lab Interior" class="w-full h-full object-cover opacity-30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDthlLUly2wmF9qOq_bcgM0mh-AlbIUy83Lnx5LCCHCU5OzE4nHx6weMTKdTXEiWVGdHEEovwxooM5EUB1YhU-_0fab7WGVTSDx4_B3qH-BFgD0kWwEsqxk3kXnuEsN-jwxv8IV7ukcgLj2HTVlGxpw8gpvgDlYFWtLN0YEiHvETU4Y_GboHVKdX9XSBFJmu3rKj-xuO4qHYdm8wMpQ1aXWWGqz7-nmUUR-6rrBKoYZiaFbVr9Db0LnQ8ucZn3wGEAw6rurBu6DdYk2"/>
@@ -13,7 +12,6 @@
     </div>
 </div>
 
-<!-- Notification Status Badge -->
 @if(session('success'))
 <div class="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-2 font-body-sm">
     <span class="material-symbols-outlined text-[20px]">check_circle</span>
@@ -21,7 +19,6 @@
 </div>
 @endif
 
-<!-- Action Row -->
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
         <h2 class="font-headline-sm text-headline-sm text-on-surface">Daftar Inventaris</h2>
@@ -35,7 +32,6 @@
     </div>
 </div>
 
-<!-- Inventory Table Canvas Container -->
 <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -43,8 +39,8 @@
                 <tr>
                     <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Laboratorium</th>
                     <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Nama Barang</th>
-                    <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Jumlah</th>
-                    <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Kondisi</th>
+                    <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Rincian Kondisi</th>
+                    <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Total Stok</th>
                     <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">Keterangan</th>
                     <th class="px-6 py-4 font-label-sm text-label-sm text-outline uppercase tracking-wider text-right">Aksi</th>
                 </tr>
@@ -52,7 +48,6 @@
             <tbody class="divide-y divide-outline-variant">
                 @forelse($inventaris as $item)
                 <tr class="hover:bg-surface-container-low/30 transition-colors group">
-                    <!-- Laboratory Designation -->
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded bg-primary-fixed flex items-center justify-center text-primary shrink-0">
@@ -62,41 +57,34 @@
                         </div>
                     </td>
                     
-                    <!-- Item Identification Name -->
                     <td class="px-6 py-4">
-                        <span class="font-body-md text-body-md text-on-surface">{{ $item->nama_barang }}</span>
+                        <span class="font-body-md text-body-md text-on-surface font-semibold">{{ $item->nama_barang }}</span>
                     </td>
                     
-                    <!-- Quantity Volumetric Amount -->
                     <td class="px-6 py-4">
-                        <span class="font-body-md text-body-md text-on-surface font-semibold">{{ $item->jumlah }} Unit</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="inline-flex items-center rounded bg-green-50 px-2 py-0.5 text-xs font-bold text-green-700 ring-1 ring-inset ring-green-600/20" title="Kondisi Baik">
+                                {{ $item->baik }} Baik
+                            </span>
+                            <span class="inline-flex items-center rounded bg-red-50 px-2 py-0.5 text-xs font-bold text-red-700 ring-1 ring-inset ring-red-600/20" title="Kondisi Rusak">
+                                {{ $item->rusak }} Rusak
+                            </span>
+                            <span class="inline-flex items-center rounded bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-600/20" title="Kondisi Cadangan">
+                                {{ $item->cadangan }} Cadangan
+                            </span>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <span class="font-body-md text-body-md text-primary font-bold">{{ $item->total }} Unit</span>
                     </td>
                     
-                    <!-- Structural Asset Condition Badge Status -->
-                    <td class="px-6 py-4">
-                        @if($item->kondisi == 'Baik')
-                            <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-700 ring-1 ring-inset ring-green-600/20 uppercase tracking-wide">
-                                Baik
-                            </span>
-                        @elseif($item->kondisi == 'Rusak Ringan')
-                            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-600/20 uppercase tracking-wide">
-                                Rusak Ringan
-                            </span>
-                        @else
-                            <span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 ring-1 ring-inset ring-red-600/20 uppercase tracking-wide">
-                                Rusak Berat
-                            </span>
-                        @endif
-                    </td>
-                    
-                    <!-- Auxiliary Notes Description -->
                     <td class="px-6 py-4">
                         <p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs truncate" title="{{ $item->keterangan }}">
                             {{ $item->keterangan ?? '-' }}
                         </p>
                     </td>
                     
-                    <!-- Operational Action Buttons System -->
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <a href="{{ route('inventaris.edit', $item->id) }}" class="p-2 text-primary hover:bg-primary-fixed rounded-lg transition-colors flex items-center justify-center" title="Edit Item">
@@ -114,7 +102,6 @@
                     </td>
                 </tr>
                 @empty
-                <!-- Empty Fallback Interface Placeholder -->
                 <tr>
                     <td colspan="6" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center justify-center max-w-sm mx-auto p-4">
@@ -130,15 +117,14 @@
     </div>
 </div>
 
-<!-- Dashboard Stats Summary Analytic Grid Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
     <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex items-center gap-4">
         <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
             <span class="material-symbols-outlined text-2xl">inventory_2</span>
         </div>
         <div>
-            <p class="text-sm text-on-surface-variant">Total Jenis Item</p>
-            <h3 class="text-2xl font-bold text-on-surface">{{ $inventaris->count() }}</h3>
+            <p class="text-sm text-on-surface-variant">Total Jenis Aset</p>
+            <h3 class="text-2xl font-bold text-on-surface">{{ $inventaris->count() }} <span class="text-xs font-normal text-on-surface-variant">Nama Barang</span></h3>
         </div>
     </div>
     <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex items-center gap-4">
@@ -146,8 +132,8 @@
             <span class="material-symbols-outlined text-2xl">verified</span>
         </div>
         <div>
-            <p class="text-sm text-on-surface-variant">Kondisi Baik</p>
-            <h3 class="text-2xl font-bold text-on-surface">{{ $inventaris->where('kondisi', 'Baik')->count() }}</h3>
+            <p class="text-sm text-on-surface-variant">Total Unit Baik</p>
+            <h3 class="text-2xl font-bold text-on-surface">{{ $inventaris->sum('baik') }} <span class="text-xs font-normal text-on-surface-variant">Unit</span></h3>
         </div>
     </div>
     <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex items-center gap-4">
@@ -155,8 +141,8 @@
             <span class="material-symbols-outlined text-2xl">construction</span>
         </div>
         <div>
-            <p class="text-sm text-on-surface-variant">Rusak (Ringan/Berat)</p>
-            <h3 class="text-2xl font-bold text-on-surface">{{ $inventaris->whereIn('kondisi', ['Rusak Ringan', 'Rusak Berat'])->count() }}</h3>
+            <p class="text-sm text-on-surface-variant">Total Unit Rusak</p>
+            <h3 class="text-2xl font-bold text-on-surface">{{ $inventaris->sum('rusak') }} <span class="text-xs font-normal text-on-surface-variant">Unit</span></h3>
         </div>
     </div>
 </div>

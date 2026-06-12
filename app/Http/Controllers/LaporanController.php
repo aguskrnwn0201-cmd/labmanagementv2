@@ -4,67 +4,121 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\Jadwal;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-    public function penggunaan(Request $request)
-{
-    $bulan = $request->bulan ?? now()->month;
-    $tahun = $request->tahun ?? now()->year;
+    /**
+     * Helper privat untuk menggabungkan data Booking (Isidentil) & Jadwal (Rutin)
+     */
+    private function getGabunganPenggunaan($bulan = null, $tahun = null)
+    {
+        $bulan = $bulan ?? now()->month;
+        $tahun = $tahun ?? now()->year;
 
-    $bookings = Booking::with('lab')
-        ->whereMonth('tanggal_booking', $bulan)
-        ->whereYear('tanggal_booking', $tahun)
-        ->where('status', 'accepted')
-        ->get();
+        // 1. Ambil data Booking yang disetujui
+        $bookings = Booking::with('lab')
+            ->whereMonth('tanggal_booking', $bulan)
+            ->whereYear('tanggal_booking', $tahun)
+            ->where('status', 'accepted')
+            ->get()
+            ->map(function ($item) {
+                $mulai = Carbon::parse($item->jam_mulai);
+                $selesai = Carbon::parse($item->jam_selesai);
+                $durasiJam = round($mulai->diffInMinutes($selesai) / 60, 1);
 
-    $rekapLab = [];
+                return [
+                    'nama_lab'     => $item->lab->nama_lab ?? 'Tidak Diketahui',
+                    'tipe'         => 'Booking Isidentil',
+                    'agenda'       => $item->keperluan,
+                    'waktu'        => Carbon::parse($item->tanggal_booking)->translatedFormat('d F Y'),
+                    'jam'          => $mulai->format('H:i') . ' - ' . $selesai->format('H:i'),
+                    'pengguna'     => $item->nama_pemohon,
+                    'keterangan'   => 'Kelas ' . $item->kelas,
+                    'durasi_jam'   => $durasiJam
+                ];
+            });
 
-    foreach ($bookings as $booking) {
+        // 2. Ambil data Jadwal Rutin Mingguan
+        $jadwals = Jadwal::with('lab')
+            ->get()
+            ->flatMap(function ($item) use ($bulan, $tahun) {
+                $mulai = Carbon::parse($item->jam_mulai);
+                $selesai = Carbon::parse($item->jam_selesai);
+                $durasiJam = round($mulai->diffInMinutes($selesai) / 60, 1);
 
-        $lab = $booking->lab->nama_lab;
+                $listJadwalBulanan = [];
+                $startOfMonth = Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth();
+                $endOfMonth = Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth();
+                
+                $hariMap = [
+                    'senin' => Carbon::MONDAY, 'selasa' => Carbon::TUESDAY, 'rabu' => Carbon::WEDNESDAY,
+                    'kamis' => Carbon::THURSDAY, 'jumat' => Carbon::FRIDAY, 'sabtu' => Carbon::SATURDAY, 'minggu' => Carbon::SUNDAY
+                ];
+                
+                $hariTarget = $hariMap[strtolower($item->hari)] ?? null;
 
-        $jam = \Carbon\Carbon::parse($booking->jam_mulai)
-            ->diffInHours(
-                \Carbon\Carbon::parse($booking->jam_selesai)
-            );
+                if ($hariTarget !== null) {
+                    for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+                        if ($date->dayOfWeek === $hariTarget) {
+                            $listJadwalBulanan[] = [
+                                'nama_lab'     => $item->lab->nama_lab ?? 'Tidak Diketahui',
+                                'tipe'         => 'Jadwal Rutin',
+                                'agenda'       => $item->mata_pelajaran,
+                                'waktu'        => $date->translatedFormat('d F Y'),
+                                'jam'          => $mulai->format('H:i') . ' - ' . $selesai->format('H:i'),
+                                'pengguna'     => $item->guru,
+                                'keterangan'   => 'Kelas ' . $item->kelas,
+                                'durasi_jam'   => $durasiJam
+                            ];
+                        }
+                    }
+                }
+                return $listJadwalBulanan;
+            });
 
-        if (!isset($rekapLab[$lab])) {
-
-            $rekapLab[$lab] = [
-                'jumlah_booking' => 0,
-                'total_jam' => 0,
-            ];
-        }
-
-        $rekapLab[$lab]['jumlah_booking']++;
-
-        $rekapLab[$lab]['total_jam'] += $jam;
+        return $bookings->merge($jadwals)->sortBy('waktu');
     }
 
-    return view(
-        'laporan.penggunaan',
-        compact(
-            'bookings',
-            'bulan',
-            'tahun',
-            'rekapLab'
-        )
-    );
-}
+    /**
+     * Halaman Utama Rekapitulasi (Bisa diakses publik)
+     */
+    public function penggunaan(Request $request)
+    {
+        $bulan = $request->bulan ?? now()->month;
+        $tahun = $request->tahun ?? now()->year;
 
-        public function previewPdf()
-            {
-                $data = Booking::with(['lab'])->get();
-                return view('laporan.pdf_penggunaan', compact('data'));
-            }
+        $semuaAktivitas = $this->getGabunganPenggunaan($bulan, $tahun);
 
-        public function exportPdf()
-            {
-                $data = Booking::with(['lab'])->get();
-                $pdf = Pdf::loadView('laporan.pdf_penggunaan', compact('data'));
-                return $pdf->stream('laporan-penggunaan.pdf'); // 'stream' untuk preview, 'download' untuk unduh
-            }
+        return view('laporan.penggunaan', compact('semuaAktivitas', 'bulan', 'tahun'));
+    }
 
+    /**
+     * Preview Halaman HTML untuk Cetak
+     */
+    public function previewPdf(Request $request)
+    {
+        $bulan = $request->bulan ?? now()->month;
+        $tahun = $request->tahun ?? now()->year;
+        $data = $this->getGabunganPenggunaan($bulan, $tahun);
+        
+        return view('laporan.pdf_penggunaan', compact('data', 'bulan', 'tahun'));
+    }
+
+    /**
+     * Unduh PDF Resmi
+     */
+    public function exportPdf(Request $request)
+    {
+        $bulan = $request->bulan ?? now()->month;
+        $tahun = $request->tahun ?? now()->year;
+        $data = $this->getGabunganPenggunaan($bulan, $tahun);
+        
+        $pdf = Pdf::loadView('laporan.pdf_penggunaan', compact('data', 'bulan', 'tahun'))
+                  ->setPaper('a4', 'portrait');
+        
+        return $pdf->stream('laporan-lab-' . $bulan . '-' . $tahun . '.pdf');
+    }
 }

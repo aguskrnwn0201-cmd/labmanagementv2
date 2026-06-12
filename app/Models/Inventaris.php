@@ -2,22 +2,28 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Inventaris extends Model
 {
-    protected $table = 'inventaris';
+    use HasFactory;
 
+    protected $table = 'inventaris'; 
+
+    // Daftarkan field-field baru di bawah ini agar diizinkan masuk ke DB
     protected $fillable = [
         'lab_id',
         'nama_barang',
-        'jumlah',
-        'kondisi',
+        'baik',
+        'rusak',
+        'cadangan',
+        'total',
         'keterangan',
     ];
 
     public function lab()
     {
-        return $this->belongsTo(Lab::class);
+        return $this->belongsTo(Lab::class, 'lab_id');
     }
 }

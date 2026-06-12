@@ -10,8 +10,8 @@ class Lab extends Model
     'nama_lab',
     'lokasi',
     'kapasitas',
-    'jumlah_komputer',
-    'deskripsi',
+    'komputer_ready', // <-- Tambahkan baris ini
+    'keterangan',
     'status'
 ];
 

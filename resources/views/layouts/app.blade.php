@@ -166,6 +166,15 @@
                     <span class="material-symbols-outlined">add_task</span>
                     <span>Booking Lab</span>
                 </a>
+              <div class="mt-4 px-4 py-2 text-xs font-bold text-outline uppercase tracking-widest">Laporan (Public)</div>
+                <a href="{{ route('laporan.penggunaan') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.penggunaan') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>Laporan Penggunaan</span>
+                </a>
+                <a href="{{ route('laporan.inventaris') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.inventaris') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">history_edu</span>
+                    <span>Laporan Inventaris</span>
+                </a>
                 <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
                     <span class="material-symbols-outlined">report_problem</span>
                     <span>Laporan Kerusakan</span>
@@ -216,10 +225,6 @@
                     <span class="material-symbols-outlined">add_task</span>
                     <span>Booking</span>
                 </a>
-                <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
-                    <span class="material-symbols-outlined">report_problem</span>
-                    <span>Laporan Kerusakan</span>
-                </a>
                 <a href="{{ route('inventaris.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('inventaris.index') ? 'nav-active' : '' }}">
                     <span class="material-symbols-outlined">inventory_2</span>
                     <span>Inventaris</span>
@@ -233,6 +238,10 @@
                 <a href="{{ route('laporan.inventaris') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan.inventaris') ? 'nav-active' : '' }}">
                     <span class="material-symbols-outlined">history_edu</span>
                     <span>Laporan Inventaris</span>
+                </a>
+                <a href="{{ route('laporan-kerusakan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('laporan-kerusakan.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">report_problem</span>
+                    <span>Laporan Kerusakan</span>
                 </a>
 
                 <div class="pt-4 pb-2 px-4 text-xs font-bold text-outline uppercase tracking-wider">Admin Tools</div>

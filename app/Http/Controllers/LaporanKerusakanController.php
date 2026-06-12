@@ -24,67 +24,66 @@ class LaporanKerusakanController extends Controller
 
 
 
-    public function create()
-    {
-        $labs = Lab::where(
-            'status',
-            'aktif'
-        )->get();
+   public function create()
+{
+    $labs = Lab::where('status', 'aktif')->get();
+    
+    // Ambil semua barang inventaris untuk pilihan di form pelaporan
+    $inventaris = \App\Models\Inventaris::all();
 
-        return view(
-            'laporan-kerusakan.create',
-            compact('labs')
-        );
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'lab_id' => 'required|exists:labs,id',
-            'nama_pelapor' => 'required',
-            'no_hp' => 'required',
-            'jenis_kerusakan' => 'required',
-            'deskripsi' => 'required',
-        ]);
-
-        $laporan = LaporanKerusakan::create([
-    'lab_id' => $request->lab_id,
-    'nama_pelapor' => $request->nama_pelapor,
-    'role_pelapor' => session('role'),
-    'no_hp' => $request->no_hp,
-    'jenis_kerusakan' => $request->jenis_kerusakan,
-    'deskripsi' => $request->deskripsi,
-    'status' => 'pending',
-]);
-
-try {
-
-    Http::timeout(10)->post(
-        'http://127.0.0.1:3001/send-message',
-        [
-            'number' => '6282332671812',
-            'message' =>
-                "🚨 LAPORAN KERUSAKAN BARU\n\n" .
-                "Pelapor: {$laporan->nama_pelapor}\n" .
-                "Role: {$laporan->role_pelapor}\n" .
-                "Kerusakan: {$laporan->jenis_kerusakan}\n" .
-                "Status: Pending"
-        ]
+    return view(
+        'laporan-kerusakan.create',
+        compact('labs', 'inventaris')
     );
-
-} catch (\Exception $e) {
-
-    logger($e->getMessage());
-
 }
 
-        return redirect()
-            ->route('laporan-kerusakan.index')
-            ->with(
-                'success',
-                'Laporan berhasil dikirim.'
-            );
+    public function store(Request $request)
+{
+    $request->validate([
+        'lab_id'          => 'required|exists:labs,id',
+        'inventaris_id'   => 'required|exists:inventaris,id', // Validasi barang wajib dipilih
+        'jumlah_rusak'    => 'required|integer|min:1',
+        'nama_pelapor'    => 'required',
+        'no_hp'           => 'required',
+        'jenis_kerusakan' => 'required',
+        'deskripsi'       => 'required',
+    ]);
+
+    // 1. Simpan Laporan Kerusakan ke Database
+    $laporan = LaporanKerusakan::create([
+        'lab_id'          => $request->lab_id,
+        'inventaris_id'   => $request->inventaris_id,
+        'jumlah_rusak'    => $request->jumlah_rusak,
+        'nama_pelapor'    => $request->nama_pelapor,
+        'role_pelapor'    => session('role') ?? auth()->user()->role,
+        'no_hp'           => $request->no_hp,
+        'jenis_kerusakan' => $request->jenis_kerusakan,
+        'deskripsi'       => $request->deskripsi,
+        'status'          => 'pending',
+    ]);
+
+    // 2. SINKRONISASI: Pindahkan stok BARANG BAIK ke BARANG RUSAK
+    $inventaris = \App\Models\Inventaris::find($request->inventaris_id);
+    if ($inventaris && $inventaris->baik >= $request->jumlah_rusak) {
+        $inventaris->baik  -= (int)$request->jumlah_rusak;
+        $inventaris->rusak += (int)$request->jumlah_rusak;
+        // Total stok tetap sama (hanya kondisinya yang berubah dari baik menjadi rusak)
+        $inventaris->total = $inventaris->baik + $inventaris->rusak + $inventaris->cadangan;
+        $inventaris->save();
     }
+
+    // 3. Kirim Notifikasi WhatsApp (Sama seperti kode Anda)
+    try {
+        Http::timeout(10)->post('http://127.0.0.1:3001/send-message', [
+            'number' => '6282332671812',
+            'message' => "🚨 LAPORAN KERUSAKAN BARU\n\nPelapor: {$laporan->nama_pelapor}\nBarang: {$inventaris->nama_barang}\nJumlah Rusak: {$laporan->jumlah_rusak} Unit\nKerusakan: {$laporan->jenis_kerusakan}\nStatus: Pending"
+        ]);
+    } catch (\Exception $e) {
+        logger($e->getMessage());
+    }
+
+    return redirect()->route('laporan-kerusakan.index')->with('success', 'Laporan berhasil dikirim dan stok inventaris diperbarui.');
+}
 
     public function show(LaporanKerusakan $laporan_kerusakan)
 {
@@ -101,64 +100,56 @@ return view(
 
 public function update(Request $request, LaporanKerusakan $laporan_kerusakan)
 {
-    // Ganti pengecekan session menjadi auth()
     if (auth()->user()->role !== 'teknisi') {
         abort(403, 'Hanya teknisi yang bisa mengubah status.');
     }
 
+    // 1. Ubah validasi agar menerima kata 'diproses' sesuai ENUM MySQL Anda
     $request->validate([
-        'status' => 'required'
+        'status' => 'required|in:pending,diproses,selesai'
     ]);
 
+    $statusLama = $laporan_kerusakan->status;
+    $statusBaru = $request->status;
 
-$laporan_kerusakan->update([
-    'status' => $request->status
-]);
+    // 2. Update status laporan kerusakan
+    $laporan_kerusakan->update([
+        'status' => $statusBaru
+    ]);
 
-$laporan_kerusakan->load('lab');
+    // 3. SINKRONISASI STOK: Jika status berubah MENJADI SELESAI
+    if ($statusLama !== 'selesai' && $statusBaru === 'selesai') {
+        $inventaris = \App\Models\Inventaris::find($laporan_kerusakan->inventaris_id);
+        
+        if ($inventaris && $inventaris->rusak >= $laporan_kerusakan->jumlah_rusak) {
+            $inventaris->rusak -= (int)$laporan_kerusakan->jumlah_rusak;
+            $inventaris->baik  += (int)$laporan_kerusakan->jumlah_rusak;
+            $inventaris->total = $inventaris->baik + $inventaris->rusak + $inventaris->cadangan;
+            $inventaris->save();
+        }
+    }
 
-$status = ucfirst($request->status);
+    // 4. Kirim WhatsApp Pemberitahuan ke Pelapor
+    $laporan_kerusakan->load('lab');
+    $statusText = $statusBaru === 'diproses' ? 'Diproses' : ucfirst($statusBaru);
+    
+    $message = "Status laporan kerusakan Anda telah diperbarui.\n\n" .
+               "Lab: {$laporan_kerusakan->lab->nama_lab}\n" .
+               "Kerusakan: {$laporan_kerusakan->jenis_kerusakan}\n" .
+               "Status: {$statusText}";
 
-$message =
-"Status laporan kerusakan Anda telah diperbarui.\n\n" .
-"Lab: {$laporan_kerusakan->lab->nama_lab}\n" .
-"Kerusakan: {$laporan_kerusakan->jenis_kerusakan}\n" .
-"Status: {$status}";
+    try {
+        Http::timeout(10)->post('http://127.0.0.1:3001/send-message', [
+            'number' => $laporan_kerusakan->no_hp,
+            'message' => $message
+        ]);
+    } catch (\Exception $e) {
+        logger($e->getMessage());
+    }
 
-try {
-
-Http::timeout(10)->post(
-    'http://127.0.0.1:3001/send-message',
-    [
-        'number' => $laporan_kerusakan->no_hp,
-        'message' => $message
-    ]
-);
-
-} catch (\Exception $e) {
-
-    logger($e->getMessage());
-
-}
-
-return redirect()
-    ->route(
-        'laporan-kerusakan.show',
-        $laporan_kerusakan->id
-    )
-    ->with(
-        'success',
-        'Status berhasil diperbarui'
-    );
-
-
-}
-
-public function previewPdf()
-{
-    $laporans = LaporanKerusakan::with('lab')->get();
-    // Gunakan view yang sama dengan export
-    return view('laporan-kerusakan.pdf', compact('laporans'));
+    return redirect()
+        ->route('laporan-kerusakan.show', $laporan_kerusakan->id)
+        ->with('success', 'Status berhasil diperbarui dan kondisi barang disinkronkan.');
 }
 
 public function exportPdf()

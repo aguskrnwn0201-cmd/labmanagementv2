@@ -20,22 +20,24 @@ class LabController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'nama_lab' => 'required',
-            'kapasitas' => 'required|integer'
-        ]);
+{
+    $request->validate([
+        'nama_lab' => 'required|string|max:255',
+        'lokasi' => 'required|string|max:255',
+        'kapasitas' => 'required|integer|min:1',
+        'komputer_ready' => 'required|integer|min:0', // <-- Tambahkan validasi ini
+        'keterangan' => 'nullable|string',
+    ]);
 
-        Lab::create([
-            'nama_lab' => $request->nama_lab,
-            'lokasi' => $request->lokasi,
-            'kapasitas' => $request->kapasitas,
-            'keterangan' => $request->keterangan,
-            'status' => 'aktif'
-        ]);
+    Lab::create([
+        'nama_lab' => $request->nama_lab,
+        'lokasi' => $request->lokasi,
+        'kapasitas' => $request->kapasitas,
+        'komputer_ready' => $request->komputer_ready, // <-- Simpan ke database
+        'keterangan' => $request->keterangan,
+        'status' => 'aktif',
+    ]);
 
-        return redirect()
-            ->route('labs.index')
-            ->with('success', 'Lab berhasil ditambahkan');
-    }
+    return redirect()->route('labs.index')->with('success', 'Laboratorium baru berhasil didaftarkan.');
+}
 }

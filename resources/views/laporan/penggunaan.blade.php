@@ -1,18 +1,37 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8">
+<div class="max-w-6xl mx-auto px-margin-mobile md:px-margin-desktop py-8 space-y-8 print:p-0 print:max-w-full">
     
-    <div class="mb-8">
-        <h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-surface">Laporan Penggunaan Lab</h2>
-        <p class="text-body-md font-body-md text-on-surface-variant mt-2">Pantau dan analisis aktivitas penggunaan laboratorium sekolah Anda secara real-time.</p>
+    {{-- Bagian Judul Utama & Kontrol Filter (Sesuai Konteks Dashboard Anda) --}}
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant/60 pb-6 print:mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-on-surface tracking-tight print:text-xl">Rekap Penggunaan Laboratorium</h1>
+            <p class="text-sm text-on-surface-variant mt-1">
+                Periode: <span class="font-semibold text-on-surface">{{ DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}</span>
+                <span class="mx-2 print:hidden">•</span>
+                <span class="print:block print:mt-1 print:text-xs text-xs font-mono">Dicetak: {{ now()->format('d F Y, H:i') }}</span>
+            </p>
+        </div>
+        
+        <div class="flex items-center gap-2 print:hidden">
+            <a href="{{ route('laporan.penggunaan.preview', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="px-4 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface font-bold rounded-lg hover:bg-surface-container-low transition-all text-sm flex items-center gap-2 shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                <span>Preview PDF</span>
+            </a>
+            <button onclick="window.print()" class="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 active:scale-95 transition-all text-sm flex items-center gap-2 shadow-md">
+                <span class="material-symbols-outlined text-[18px]">print</span>
+                <span>Cetak Rekap</span>
+            </button>
+        </div>
     </div>
 
-    <section class="bg-surface-container-lowest border border-outline-variant rounded-lg p-6 mb-8 shadow-sm">
-        <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-            <div class="space-y-2">
+    {{-- Form Filter Bulan & Tahun (Tetap Dipertahankan untuk Kebutuhan Web Dashboard) --}}
+    <section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm print:hidden">
+        <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div class="space-y-1.5">
                 <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Bulan</label>
-                <select name="bulan" class="w-full h-12 bg-surface-container-low border border-outline rounded-lg px-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-body-md text-on-surface">
+                <select name="bulan" class="w-full h-11 bg-surface-container-low border border-outline rounded-lg px-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-sm text-on-surface">
                     @for($i=1; $i<=12; $i++)
                         <option value="{{ $i }}" {{ $bulan == $i ? 'selected' : '' }}>
                             {{ DateTime::createFromFormat('!m', $i)->format('F') }}
@@ -21,137 +40,135 @@
                 </select>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-1.5">
                 <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Tahun</label>
-                <input type="number" name="tahun" value="{{ $tahun }}" class="w-full h-12 bg-surface-container-low border border-outline rounded-lg px-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-body-md text-on-surface"/>
+                <input type="number" name="tahun" value="{{ $tahun }}" class="w-full h-11 bg-surface-container-low border border-outline rounded-lg px-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-sm text-on-surface"/>
             </div>
 
-            <button type="submit" class="bg-primary text-white h-12 font-bold rounded-lg px-8 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm">
+            <button type="submit" class="bg-primary text-white h-11 font-bold rounded-lg px-6 hover:brightness-110 active:scale-95 transition-all text-sm flex items-center justify-center gap-2 shadow-sm">
                 <span class="material-symbols-outlined text-lg">search</span>
-                <span>Tampilkan</span>
+                <span>Tampilkan Data</span>
             </button>
         </form>
     </section>
 
-    <section class="mb-10">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold">Ringkasan Penggunaan</h3>
-            <span class="text-label-md font-label-md text-primary bg-primary-fixed px-3 py-1 rounded-full font-medium">
-                {{ DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}
-            </span>
+    {{-- 2. Empat Pilar Ringkasan Indikator Statistik (PERSIS TEMPLATE PDF) --}}
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 print:grid-cols-3 print:gap-2">
+        <div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl shadow-sm text-center print:border-black print:p-2">
+            <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">Jadwal Tetap</p>
+            <h3 class="text-2xl font-black text-primary mt-1">
+                {{ collect($semuaAktivitas)->where('tipe', 'Jadwal Rutin')->count() }}
+            </h3>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            @foreach($rekapLab as $lab => $data)
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-5 flex flex-col gap-3 shadow-sm hover:border-primary transition-colors duration-200">
-                    <div class="flex items-center justify-between">
-                        @if(Str::contains(Str::lower($lab), 'komputer'))
-                            <span class="material-symbols-outlined text-primary text-3xl">desktop_windows</span>
-                        @elseif(Str::contains(Str::lower($lab), 'kimia') || Str::contains(Str::lower($lab), 'ipa'))
-                            <span class="material-symbols-outlined text-secondary text-3xl">science</span>
-                        @else
-                            <span class="material-symbols-outlined text-tertiary text-3xl">biotech</span>
-                        @endif
-                        <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-green-200">Aktif</span>
-                    </div>
-                    <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">{{ $lab }}</h4>
-                    <div class="flex justify-between border-t border-outline-variant pt-3 mt-1">
-                        <div>
-                            <p class="text-label-sm font-label-sm text-on-surface-variant">Jumlah Booking</p>
-                            <p class="text-headline-md font-headline-md text-primary font-bold mt-0.5">{{ $data['jumlah_booking'] }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-label-sm font-label-sm text-on-surface-variant">Total Durasi</p>
-                            <p class="text-headline-md font-headline-md text-primary font-bold mt-0.5">{{ $data['total_jam'] }} Jam</p>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+        <div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl shadow-sm text-center print:border-black print:p-2">
+            <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">Booking</p>
+            <h3 class="text-2xl font-black text-secondary mt-1">
+                {{ collect($semuaAktivitas)->where('tipe', '!=', 'Jadwal Rutin')->count() }}
+            </h3>
+        </div>
+        <div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl shadow-sm text-center bg-primary-container/10 print:border-black print:p-2">
+            <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">Total Terpakai</p>
+            <h3 class="text-2xl font-black text-green-700 mt-1">
+                {{ collect($semuaAktivitas)->count() }}
+            </h3>
+        </div>
+    
+    </div>
+
+    {{-- SEKSI 1: TABEL JADWAL TETAP (PERSIS TEMPLATE PDF) --}}
+    <section class="space-y-3 break-inside-avoid">
+        <div class="flex items-center gap-2 border-l-4 border-primary pl-3 py-0.5">
+            <h2 class="text-base font-bold text-on-surface">Jadwal Tetap</h2>
+        </div>
+        <div class="overflow-x-auto border border-outline-variant rounded-xl bg-surface-container-lowest print:border-black print:rounded-none">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low text-on-surface-variant font-semibold border-b border-outline-variant print:bg-gray-100 print:border-black">
+                        <th class="p-3 print:p-2">Hari</th>
+                        <th class="p-3 print:p-2">Slot Waktu</th>
+                        <th class="p-3 print:p-2">Guru/Pengajar</th>
+                        <th class="p-3 print:p-2">Kelas</th>
+                        <th class="p-3 print:p-2">Mata Pelajaran</th>
+                        <th class="p-3 print:p-2 text-center">Frekuensi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/60 print:divide-black">
+                    @forelse(collect($semuaAktivitas)->where('tipe', 'Jadwal Rutin') as $item)
+                    <tr class="hover:bg-surface-container-lowest/50">
+                        <td class="p-3 print:p-2 font-medium">{{ $item['waktu'] }}</td>
+                        <td class="p-3 print:p-2 text-xs font-mono text-primary">{{ $item['jam'] }}</td>
+                        <td class="p-3 print:p-2">{{ $item['pengguna'] }}</td>
+                        <td class="p-3 print:p-2"><span class="bg-surface-container-high px-2 py-0.5 rounded text-xs print:border print:p-0.5">{{ $item['keterangan'] }}</span></td>
+                        <td class="p-3 print:p-2 font-semibold">{{ $item['agenda'] }}</td>
+                        <td class="p-3 print:p-2 text-center text-xs">4x/bln</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-on-surface-variant italic">Tidak ada jadwal rutin pada periode ini.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    {{-- SEKSI 2: TABEL BOOKING DISETUJUI (PERSIS TEMPLATE PDF) --}}
+    <section class="space-y-3">
+        <div class="flex items-center gap-2 border-l-4 border-secondary pl-3 py-0.5">
+            <h2 class="text-base font-bold text-on-surface">Booking Disetujui</h2>
+        </div>
+        <div class="overflow-x-auto border border-outline-variant rounded-xl bg-surface-container-lowest print:border-black print:rounded-none">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low text-on-surface-variant font-semibold border-b border-outline-variant print:bg-gray-100 print:border-black">
+                        <th class="p-3 print:p-2">Tanggal</th>
+                        <th class="p-3 print:p-2">Slot Waktu</th>
+                        <th class="p-3 print:p-2">Pengajar</th>
+                        <th class="p-3 print:p-2">Kelas</th>
+                        <th class="p-3 print:p-2">Kegiatan / Mapel</th>
+                        <th class="p-3 print:p-2 text-center">Peserta</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/60 print:divide-black">
+                    @forelse(collect($semuaAktivitas)->where('tipe', '!=', 'Jadwal Rutin') as $item)
+                    <tr class="hover:bg-surface-container-lowest/50">
+                        <td class="p-3 print:p-2 text-xs font-medium">{{ $item['waktu'] }}</td>
+                        <td class="p-3 print:p-2 text-xs font-mono text-secondary">{{ $item['jam'] }}</td>
+                        <td class="p-3 print:p-2 text-xs">{{ $item['pengguna'] }}</td>
+                        <td class="p-3 print:p-2 text-xs">{{ $item['keterangan'] }}</td>
+                        <td class="p-3 print:p-2 text-xs font-semibold text-on-surface">{{ $item['agenda'] }}</td>
+                        <td class="p-3 print:p-2 text-center text-xs font-bold">{{ $item['durasi_jam'] ?? '3' }} org</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-on-surface-variant italic">Tidak ada log booking pada periode ini.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </section>
 
-    <section>
-        <div class="flex items-center justify-between mb-4 px-2">
-            <h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold">Detail Penggunaan</h3>
-            <div class="mb-4 flex gap-2">
-                <a href="{{ route('laporan.penggunaan.preview') }}" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded">
-                    Preview & Cetak
-                </a>
-                <a href="{{ route('laporan.penggunaan.download') }}" class="px-4 py-2 bg-green-600 text-white rounded">
-                    Download PDF
-                </a>
-            </div>
-        </div>
+    {{-- Footer Cetak Penanda Aplikasi --}}
+    <div class="hidden print:flex items-center justify-between text-[10px] text-gray-400 mt-12 border-t border-gray-200 pt-2">
+        <div>Lab Management | Dicetak Otomatis</div>
+        <div>Halaman Rekap Penggunaan Laboratorium</div>
+    </div>
 
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden shadow-sm">
-            <div class="hidden md:grid grid-cols-5 bg-surface-container-low px-6 py-4 border-b border-outline-variant">
-                <div class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Tanggal</div>
-                <div class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Laboratorium</div>
-                <div class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Pemohon</div>
-                <div class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Jam Aktivitas</div>
-                <div class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider text-right">Status</div>
-            </div>
-
-            <div class="divide-y divide-outline-variant">
-                @forelse($bookings as $booking)
-                    <div class="grid grid-cols-1 md:grid-cols-5 px-6 py-5 hover:bg-surface-container-low/50 transition-colors items-center gap-3 md:gap-4">
-                        
-                        <div class="flex items-center gap-3 md:block">
-                            <div class="md:hidden w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-primary">
-                                <span class="material-symbols-outlined">calendar_month</span>
-                            </div>
-                            <div>
-                                <p class="text-body-md font-semibold md:font-normal text-on-surface">{{ $booking->tanggal_booking }}</p>
-                                <p class="md:hidden text-label-sm font-medium text-primary mt-0.5">{{ $booking->lab->nama_lab }}</p>
-                            </div>
-                        </div>
-
-                        <div class="hidden md:block">
-                            <p class="text-body-md text-on-surface font-medium">{{ $booking->lab->nama_lab }}</p>
-                        </div>
-
-                        <div class="flex flex-row md:block justify-between items-center">
-                            <span class="text-label-sm text-on-surface-variant md:hidden font-medium">Pemohon:</span>
-                            <p class="text-body-md text-on-surface">{{ $booking->nama_pemohon }}</p>
-                        </div>
-
-                        <div class="flex flex-row md:block justify-between items-center">
-                            <span class="text-label-sm text-on-surface-variant md:hidden font-medium">Waktu:</span>
-                            <p class="text-body-md text-on-surface font-mono bg-surface-container border border-outline-variant/30 px-2 py-0.5 rounded md:bg-transparent md:border-none md:p-0">
-                                {{ $booking->jam_mulai }} - {{ $booking->jam_selesai }}
-                            </p>
-                        </div>
-
-                        <div class="text-right flex items-center justify-between md:justify-end mt-1 md:mt-0">
-                            <span class="text-label-sm text-on-surface-variant md:hidden font-medium">Status:</span>
-                            <span class="bg-green-100 text-green-700 font-label-sm font-semibold px-3 py-1 rounded-full border border-green-200 text-xs">
-                                Selesai
-                            </span>
-                        </div>
-                    </div>
-                @empty
-                    <div class="p-12 text-center flex flex-col items-center justify-center gap-3">
-                        <span class="material-symbols-outlined text-outline text-5xl">folder_open</span>
-                        <p class="text-body-lg text-on-surface-variant font-medium">Tidak ada data penggunaan laboratorium pada periode ini.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-    </section>
 </div>
 
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const items = document.querySelectorAll('section > div > div');
-        items.forEach((item, index) => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(8px)';
-            setTimeout(() => {
-                item.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                item.style.opacity = '1';
-                item.style.transform = 'translateY(0)';
-            }, index * 60);
-        });
-    });
-</script>
+{{-- Style Tambahan untuk Kompatibilitas Kertas Cetak PDF Browser --}}
+<style>
+    @media print {
+        body { background: white; color: black; font-size: 12px; }
+        .print\:hidden { display: none !important; }
+        .print\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+        .print\:border-black { border-color: #000000 !important; border-width: 1px !important; }
+        .print\:rounded-none { border-radius: 0px !important; }
+        .print\:p-2 { padding: 6px 8px !important; }
+        table { page-break-inside: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+    }
+</style>
 @endsection

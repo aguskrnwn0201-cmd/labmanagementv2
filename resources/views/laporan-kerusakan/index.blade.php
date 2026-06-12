@@ -30,6 +30,7 @@
 </div>
 @endif
 
+{{-- Dashboard Stats --}}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-8">
     <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm">
         <div class="flex items-center gap-4">
@@ -52,7 +53,8 @@
             <div>
                 <p class="text-label-sm font-label-sm text-on-surface-variant">Dalam Proses</p>
                 <h3 class="text-headline-md font-headline-md text-on-surface">
-                    {{ $laporans->where('status', 'diproses')->count() }}
+                    {{-- SINKRONISASI: Diubah dari 'diproses' menjadi 'proses' sesuai isi Controller --}}
+                    {{ $laporans->where('status', 'proses')->count() }}
                 </h3>
             </div>
         </div>
@@ -72,6 +74,7 @@
     </div>
 </div>
 
+{{-- Container List --}}
 <div class="grid grid-cols-1 gap-4">
     @forelse($laporans as $laporan)
         <div class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:shadow-md transition-shadow duration-300">
@@ -79,7 +82,6 @@
                 
                 {{-- Bagian Status & Nama Lab --}}
                 <div class="md:col-span-4 space-y-2">
-                    {{-- KUNCI BERLAPIS: Jika yang masuk adalah Teknisi/Admin, berikan form pengubah status --}}
                     @if(Auth::check() && 
                         strtolower(Auth::user()->role) !== 'guru' && 
                         strtolower(Auth::user()->role) !== 'siswa' && 
@@ -90,18 +92,19 @@
                             @csrf
                             @method('PATCH')
                             <select name="status" onchange="this.form.submit()" class="w-full text-xs font-bold border border-outline-variant rounded-lg p-1.5 cursor-pointer bg-surface-container-low text-on-surface focus:outline-none focus:ring-1 focus:ring-primary uppercase tracking-wider">
-                                <option value="pending" {{ $laporan->status == 'pending' ? 'selected' : '' }} class="bg-surface-container-lowest text-amber-700 font-bold">Pending</option>
-                                <option value="diproses" {{ $laporan->status == 'diproses' ? 'selected' : '' }} class="bg-surface-container-lowest text-blue-700 font-bold">Diproses</option>
-                                <option value="selesai" {{ $laporan->status == 'selesai' ? 'selected' : '' }} class="bg-surface-container-lowest text-green-700 font-bold">Selesai</option>
+                                <<option value="pending" {{ $laporan->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                {{-- Pastikan value-nya 'diproses' (pake di-), sedangkan pengecekan kondisinya juga sama --}}
+                                <option value="diproses" {{ $laporan->status == 'diproses' || $laporan->status == 'proses' ? 'selected' : '' }}>Diproses</option>
+                                <option value="selesai" {{ $laporan->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
                         </form>
                     @else
-                        {{-- Jika yang masuk adalah Guru, Siswa, atau Guest, HANYA tampilkan badge statis --}}
+                        {{-- Tampilan Badge Statis Pengunjung (Guest / Guru / Siswa) --}}
                         @if($laporan->status == 'pending')
                             <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-600/20 uppercase tracking-wider">
                                 Pending
                             </span>
-                        @elseif($laporan->status == 'diproses')
+                        @elseif($laporan->status == 'proses' || $laporan->status == 'diproses')
                             <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 ring-1 ring-inset ring-blue-600/20 uppercase tracking-wider">
                                 Diproses
                             </span>
@@ -117,6 +120,7 @@
                     </h4>
                 </div>
 
+                {{-- Informasi Detail Kerusakan --}}
                 <div class="md:col-span-5 space-y-1">
                     <span class="text-[10px] uppercase font-bold text-outline tracking-wider block">Kerusakan</span>
                     <p class="font-body-md text-body-md text-on-surface font-medium line-clamp-1">
@@ -124,6 +128,7 @@
                     </p>
                 </div>
 
+                {{-- Identitas Pelapor --}}
                 <div class="md:col-span-3 flex items-center gap-3 border-t md:border-t-0 md:border-l border-outline-variant/60 pt-4 md:pt-0 md:pl-4">
                     <div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center font-bold text-primary uppercase shrink-0">
                         {{ substr($laporan->nama_pelapor, 0, 1) }}
