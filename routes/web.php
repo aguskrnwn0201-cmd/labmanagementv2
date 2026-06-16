@@ -28,10 +28,12 @@ Route::prefix('laporan')->name('laporan.')->group(function () {
     Route::get('/penggunaan', [LaporanController::class, 'penggunaan'])->name('penggunaan');
     Route::get('/penggunaan/preview', [LaporanController::class, 'previewPdf'])->name('penggunaan.preview');
     Route::get('/penggunaan/download', [LaporanController::class, 'exportPdf'])->name('penggunaan.download');
-
+	Route::get('/penggunaan/export-excel', [LaporanController::class, 'exportExcel'])->name('penggunaan.excel');
     Route::get('/inventaris', [LaporanInventarisController::class, 'index'])->name('inventaris');
     Route::get('/inventaris/preview', [LaporanInventarisController::class, 'previewExcel'])->name('inventaris.preview');
     Route::get('/inventaris/export-excel', [LaporanInventarisController::class, 'exportExcel'])->name('inventaris.excel');
+	Route::get('/inventaris/preview-pdf', [LaporanInventarisController::class, 'previewPdf'])->name('inventaris.preview-pdf'); // ← TAMBAH
+    Route::get('/inventaris/export-pdf', [LaporanInventarisController::class, 'exportPdf'])->name('inventaris.pdf');
 });
 
 // --- Protected Routes (Khusus Teknisi) ---
@@ -45,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kerusakan', [LaporanKerusakanController::class, 'index'])->name('kerusakan');
         Route::get('/kerusakan/preview', [LaporanKerusakanController::class, 'previewPdf'])->name('kerusakan.preview');
         Route::get('/kerusakan/export-pdf', [LaporanKerusakanController::class, 'exportPdf'])->name('kerusakan.pdf');
+    	Route::get('/kerusakan/export-excel', [LaporanKerusakanController::class, 'exportExcel'])->name('kerusakan.excel');
+
     });
 });
 

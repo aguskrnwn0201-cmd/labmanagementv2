@@ -158,6 +158,10 @@
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Dashboard</span>
                 </a>
+            	<a href="{{ route('kalender.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('kalender.index') ? 'nav-active' : '' }}">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Kalender Lab</span>
+                </a>
                 <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-surface-container-high/10 transition-all {{ request()->routeIs('jadwal.index') ? 'nav-active' : '' }}">
                     <span class="material-symbols-outlined">event_note</span>
                     <span>Jadwal Lab</span>

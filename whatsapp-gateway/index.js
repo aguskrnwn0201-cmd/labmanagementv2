@@ -94,7 +94,7 @@ async function startBot() {
 
     })
 
-    app.listen(3001, () => {
+    app.listen(3001, '0.0.0.0', () => {
 
         console.log(
             '🚀 WA Gateway Running :3001'

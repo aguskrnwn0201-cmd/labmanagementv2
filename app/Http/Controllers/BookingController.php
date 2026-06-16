@@ -139,7 +139,7 @@ class BookingController extends Controller
 
         try {
             Http::timeout(10)->post(
-                'http://127.0.0.1:3001/send-message',
+                'http://172.19.0.1:3001/send-message',
                 [
                     'number'  => env('WA_TEKNISI'),
                     'message' => $message,

@@ -12,7 +12,8 @@ class Jadwal extends Model
     'jam_mulai', 
     'jam_selesai', 
     'mata_pelajaran', 
-    'guru', 
+    'guru',
+    'no_hp',
     'kelas', 
     'lembaga',  // <--- Pastikan ini ada
     'semester'  // <--- Pastikan ini ada

@@ -9,14 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-  public function up()
+public function up()
 {
     Schema::table('jadwals', function (Blueprint $table) {
-        // Cek dulu apakah kolom tahun_ajaran ada, jika ada baru di-rename
-        if (Schema::hasColumn('jadwals', 'tahun_ajaran')) {
-            $table->renameColumn('tahun_ajaran', 'lembaga');
-        } else {
-            // Jika tidak ada, buat saja kolom 'lembaga' agar tetap jalan
+        if (!Schema::hasColumn('jadwals', 'lembaga')) {
             $table->string('lembaga')->nullable();
         }
     });

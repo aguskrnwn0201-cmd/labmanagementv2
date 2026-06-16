@@ -27,11 +27,6 @@
                     <span>Tambah Jadwal</span>
                 </a>
             @endif
-            
-            <button class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant px-4 py-2 rounded-lg text-on-surface hover:bg-surface-container-low transition-all font-label-md text-label-md shadow-sm">
-                <span class="material-symbols-outlined text-[20px]">print</span>
-                <span>Cetak</span>
-            </button>
         </div>
     </div>
 

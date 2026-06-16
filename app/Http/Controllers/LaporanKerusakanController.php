@@ -7,6 +7,8 @@ use App\Models\LaporanKerusakan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use DateTime;
 
 class LaporanKerusakanController extends Controller
 {
@@ -41,8 +43,6 @@ class LaporanKerusakanController extends Controller
 {
     $request->validate([
         'lab_id'          => 'required|exists:labs,id',
-        'inventaris_id'   => 'required|exists:inventaris,id', // Validasi barang wajib dipilih
-        'jumlah_rusak'    => 'required|integer|min:1',
         'nama_pelapor'    => 'required',
         'no_hp'           => 'required',
         'jenis_kerusakan' => 'required',
@@ -53,9 +53,8 @@ class LaporanKerusakanController extends Controller
     $laporan = LaporanKerusakan::create([
         'lab_id'          => $request->lab_id,
         'inventaris_id'   => $request->inventaris_id,
-        'jumlah_rusak'    => $request->jumlah_rusak,
         'nama_pelapor'    => $request->nama_pelapor,
-        'role_pelapor'    => session('role') ?? auth()->user()->role,
+        'role_pelapor' => session('role') ?? (auth()->check() ? auth()->user()->role : 'siswa'),
         'no_hp'           => $request->no_hp,
         'jenis_kerusakan' => $request->jenis_kerusakan,
         'deskripsi'       => $request->deskripsi,
@@ -74,7 +73,7 @@ class LaporanKerusakanController extends Controller
 
     // 3. Kirim Notifikasi WhatsApp (Sama seperti kode Anda)
     try {
-        Http::timeout(10)->post('http://127.0.0.1:3001/send-message', [
+        Http::timeout(10)->post('http://172.19.0.1:3001/send-message', [
             'number' => '6282332671812',
             'message' => "🚨 LAPORAN KERUSAKAN BARU\n\nPelapor: {$laporan->nama_pelapor}\nBarang: {$inventaris->nama_barang}\nJumlah Rusak: {$laporan->jumlah_rusak} Unit\nKerusakan: {$laporan->jenis_kerusakan}\nStatus: Pending"
         ]);
@@ -139,7 +138,7 @@ public function update(Request $request, LaporanKerusakan $laporan_kerusakan)
                "Status: {$statusText}";
 
     try {
-        Http::timeout(10)->post('http://127.0.0.1:3001/send-message', [
+        Http::timeout(10)->post('http://172.19.0.1:3001/send-message', [
             'number' => $laporan_kerusakan->no_hp,
             'message' => $message
         ]);
@@ -163,5 +162,52 @@ public function exportPdf()
     $pdf = Pdf::loadView('laporan-kerusakan.pdf', compact('laporans'));
     
     return $pdf->download('laporan-kerusakan-' . now()->format('Y-m-d') . '.pdf');
+}
+
+public function previewPdf()
+{
+    $laporans = LaporanKerusakan::with('lab')->latest()->get();
+    return view('laporan-kerusakan.pdf', compact('laporans'));
+}
+
+public function exportExcel(): StreamedResponse
+{
+    $laporans = LaporanKerusakan::with('lab')->latest()->get();
+    $filename = 'laporan-kerusakan-' . now()->format('Y-m-d') . '.csv';
+
+    $headers = [
+        'Content-Type'        => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ];
+
+    return response()->stream(function () use ($laporans) {
+        $file = fopen('php://output', 'w');
+
+        // BOM UTF-8 agar Excel tidak rusak
+        fputs($file, "\xEF\xBB\xBF");
+
+        // Judul
+        fputcsv($file, ['Laporan Kerusakan Laboratorium']);
+        fputcsv($file, ['Dicetak: ' . now()->format('d F Y, H:i')]);
+        fputcsv($file, []);
+
+        // Header kolom
+        fputcsv($file, ['No', 'Laboratorium', 'Nama Pelapor', 'Role', 'Jenis Kerusakan', 'Deskripsi', 'Status', 'Tanggal']);
+
+        foreach ($laporans as $i => $laporan) {
+            fputcsv($file, [
+                $i + 1,
+                $laporan->lab->nama_lab ?? '-',
+                $laporan->nama_pelapor,
+                ucfirst($laporan->role_pelapor),
+                $laporan->jenis_kerusakan,
+                $laporan->deskripsi,
+                ucfirst($laporan->status),
+                $laporan->created_at->format('d F Y'),
+            ]);
+        }
+
+        fclose($file);
+    }, 200, $headers);
 }
 }

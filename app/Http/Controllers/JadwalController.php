@@ -42,17 +42,18 @@ class JadwalController extends Controller
     {
         $this->authorizeTeknisi();
 
-        $request->validate([
-            'lab_id'         => 'required|exists:labs,id',
-            'hari'           => 'required',
-            'jam_mulai'      => 'required|date_format:H:i', // Memastikan format 24 jam di backend
-            'jam_selesai'    => 'required|date_format:H:i|after:jam_mulai',
-            'mata_pelajaran' => 'required',
-            'guru'           => 'required',
-            'kelas'          => 'required',
-            'lembaga'        => 'required|string|max:255', // Validasi kolom baru
-            'semester'       => 'required|in:Ganjil,Genap', // Validasi kolom baru
-        ]);
+       $request->validate([
+    'lab_id'         => 'required|exists:labs,id',
+    'hari'           => 'required',
+    'jam_mulai'      => 'required|date_format:H:i',
+    'jam_selesai'    => 'required|date_format:H:i|after:jam_mulai',
+    'mata_pelajaran' => 'required',
+    'guru'           => 'required',
+    'no_hp'          => 'nullable|string|max:20',  // BARU
+    'kelas'          => 'required',
+    'lembaga'        => 'required|string|max:255',
+    'semester'       => 'required|in:Ganjil,Genap',
+]);
 
         if ($this->isBentrok($request)) {
             return back()->withInput()->withErrors(['jadwal' => 'Jadwal bentrok dengan jadwal lain pada jam dan lab yang sama.']);
@@ -83,15 +84,16 @@ class JadwalController extends Controller
     }
 
     // Validasi data inputan
-    $validated = $request->validate([
-        'lab_id'          => 'required|exists:labs,id',
-        'hari'            => 'required|string',
-        'jam_mulai'       => 'required',
-        'jam_selesai'     => 'required|after:jam_mulai',
-        'mata_pelajaran'  => 'required|string|max:255',
-        'guru'            => 'required|string|max:255',
-        'kelas'           => 'required|string|max:50',
-    ]);
+  $validated = $request->validate([
+    'lab_id'          => 'required|exists:labs,id',
+    'hari'            => 'required|string',
+    'jam_mulai'       => 'required',
+    'jam_selesai'     => 'required|after:jam_mulai',
+    'mata_pelajaran'  => 'required|string|max:255',
+    'guru'            => 'required|string|max:255',
+    'no_hp'           => 'nullable|string|max:20',  // BARU
+    'kelas'           => 'required|string|max:50',
+]);
 
     // LOGIKA PERBAIKAN UPDATE: Cek tabrakan jadwal dengan mengecualikan ID jadwal ini sendiri ($jadwal->id)
     $bentrok = Jadwal::where('lab_id', $request->lab_id)

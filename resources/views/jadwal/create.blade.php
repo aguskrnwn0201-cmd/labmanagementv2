@@ -109,7 +109,18 @@
                     <input type="text" name="guru" value="{{ old('guru') }}" class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-md" placeholder="Contoh: Budi Santoso, S.Kom" required>
                 </div>
             </div>
-
+			
+            
+			<div class="space-y-2">
+   				<label class="block text-sm font-semibold text-on-surface-variant">No. HP Guru</label>
+    			<div class="relative">
+        		<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-xl">phone</span>
+        		<input type="tel" name="no_hp" value="{{ old('no_hp') }}"
+               		class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-md"
+               		placeholder="Contoh: 08123456789">
+   				</div>
+			</div>
+            
             {{-- Kelas --}}
             <div class="space-y-2">
                 <label class="block text-sm font-semibold text-on-surface-variant">Kelas</label>

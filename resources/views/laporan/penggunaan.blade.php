@@ -15,15 +15,24 @@
         </div>
         
         <div class="flex items-center gap-2 print:hidden">
-            <a href="{{ route('laporan.penggunaan.preview', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="px-4 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface font-bold rounded-lg hover:bg-surface-container-low transition-all text-sm flex items-center gap-2 shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                <span>Preview PDF</span>
-            </a>
-            <button onclick="window.print()" class="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 active:scale-95 transition-all text-sm flex items-center gap-2 shadow-md">
-                <span class="material-symbols-outlined text-[18px]">print</span>
-                <span>Cetak Rekap</span>
-            </button>
-        </div>
+    {{-- Tombol Preview PDF --}}
+    <a href="{{ route('laporan.penggunaan.preview', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="px-4 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface font-bold rounded-lg hover:bg-surface-container-low transition-all text-sm flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+        <span>Preview</span>
+    </a>
+
+    {{-- Tombol Cetak PDF (merah) --}}
+    <a href="{{ route('laporan.penggunaan.preview', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 active:scale-95 transition-all text-sm flex items-center gap-2 shadow-md">
+        <span class="material-symbols-outlined text-[18px]">print</span>
+        <span>Cetak PDF</span>
+    </a>
+
+    {{-- Tombol Cetak Excel (hijau) --}}
+    <a href="{{ route('laporan.penggunaan.excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 active:scale-95 transition-all text-sm flex items-center gap-2 shadow-md">
+        <span class="material-symbols-outlined text-[18px]">table_view</span>
+        <span>Cetak Excel</span>
+    </a>
+</div>
     </div>
 
     {{-- Form Filter Bulan & Tahun (Tetap Dipertahankan untuk Kebutuhan Web Dashboard) --}}
@@ -76,7 +85,7 @@
     </div>
 
     {{-- SEKSI 1: TABEL JADWAL TETAP (PERSIS TEMPLATE PDF) --}}
-    <section class="space-y-3 break-inside-avoid">
+    <section class="space-y-3" style="break-before: avoid; page-break-before: avoid;">
         <div class="flex items-center gap-2 border-l-4 border-primary pl-3 py-0.5">
             <h2 class="text-base font-bold text-on-surface">Jadwal Tetap</h2>
         </div>
@@ -162,13 +171,38 @@
     @media print {
         body { background: white; color: black; font-size: 12px; }
         .print\:hidden { display: none !important; }
-        .print\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+        .print\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
         .print\:border-black { border-color: #000000 !important; border-width: 1px !important; }
         .print\:rounded-none { border-radius: 0px !important; }
         .print\:p-2 { padding: 6px 8px !important; }
-        table { page-break-inside: auto; }
-        tr { page-break-inside: avoid; page-break-after: auto; }
-        thead { display: table-header-group; }
+
+        /* Hapus semua margin/padding container utama */
+        .max-w-6xl {
+            max-width: 100% !important;
+            padding: 0 4px !important;
+            margin: 0 !important;
+        }
+
+        /* Paksa semua space-y tidak kasih jarak besar */
+        .space-y-8 > * + * { margin-top: 12px !important; }
+        .space-y-3 > * + * { margin-top: 6px !important; }
+
+        /* KUNCI: Cegah break setelah grid statistik */
+        .grid {
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+
+        /* Cegah break sebelum section pertama */
+        section:first-of-type {
+            break-before: avoid !important;
+            page-break-before: avoid !important;
+        }
+
+        /* Tabel boleh lanjut ke halaman berikut */
+        table { page-break-inside: auto !important; width: 100% !important; }
+        tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+        thead { display: table-header-group !important; }
     }
 </style>
 @endsection

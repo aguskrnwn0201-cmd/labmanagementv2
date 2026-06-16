@@ -71,6 +71,15 @@
 
 </a>
 
+<a href="{{ route('kalender.index') }}"
+   class="bg-white rounded-xl shadow p-6 hover:shadow-lg">
+    <h2 class="text-xl font-bold mb-2">
+        🗓️ Kalender Lab
+    </h2>
+    <p class="text-gray-500">
+        Melihat kalender penggunaan laboratorium.
+    </p>
+</a>
 <a href="{{ route('booking.index') }}"
    class="bg-white rounded-xl shadow p-6 hover:shadow-lg">
 
@@ -83,19 +92,20 @@
     </p>
 
 </a>
+<a href="{{ route('laporan-kerusakan.index') }}"
+   class="bg-white rounded-xl shadow p-6 hover:shadow-lg">
 
+    <h2 class="text-xl font-bold mb-2">
+       🚧 Laporan Kerusakan
+    </h2>
+
+    <p class="text-gray-500">
+        Laporan kerusakan lab.
+    </p>
+
+</a>
 
 </div>
-
-<div class="mt-8 bg-yellow-50 border border-yellow-300 rounded-xl p-6">
-
-<h2 class="text-xl font-bold text-yellow-700">
-    🚧 Laporan Kerusakan
-</h2>
-
-<p class="text-yellow-600 mt-2">
-    Fitur sedang dalam pengembangan.
-</p>
 
 
 </div>

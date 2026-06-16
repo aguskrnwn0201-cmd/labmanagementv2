@@ -8,16 +8,23 @@
             <h2 class="text-headline-md font-headline-md text-on-surface font-bold">Laporan Inventaris</h2>
             <p class="text-body-sm font-body-sm text-on-surface-variant">Data lengkap aset dan peralatan laboratorium aktif.</p>
         </div>
-        <div class="flex gap-2">
-            <a href="{{ route('laporan.inventaris.preview') }}" target="_blank" class="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">table_view</span>
-                <span>Preview Excel</span>
-            </a>
-            <a href="{{ route('laporan.inventaris.excel') }}" class="px-4 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">download</span>
-                <span>Download Excel</span>
-            </a>
-        </div>
+       <div class="flex flex-wrap items-center gap-3">
+    {{-- Preview --}}
+    <a href="{{ route('laporan.inventaris.preview-pdf') }}" target="_blank" class="px-4 py-2.5 border border-outline-variant bg-surface-container-lowest text-on-surface rounded-lg font-bold hover:bg-surface-container-low transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+        <span>Preview</span>
+    </a>
+    {{-- Cetak Excel --}}
+    <a href="{{ route('laporan.inventaris.excel') }}" class="px-4 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">print</span>
+        <span>Cetak Excel</span>
+    </a>
+    {{-- Cetak PDF --}}
+    <a href="{{ route('laporan.inventaris.pdf') }}" class="px-4 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">print</span>
+        <span>Cetak PDF</span>
+    </a>
+</div>
     </div>
 
     @foreach($labs as $lab)

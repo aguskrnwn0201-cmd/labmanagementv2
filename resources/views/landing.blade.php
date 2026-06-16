@@ -131,7 +131,7 @@
         </section>
 
         <div class="w-full max-w-sm space-y-4 mb-12">
-            <a href="/dashboard" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
+            <a href="{{ url('/dashboard') }}" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
                 <div class="mr-4 p-3 rounded-lg bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors">
                     <span class="material-symbols-outlined text-primary text-[28px]" data-icon="settings">settings</span>
                 </div>
@@ -144,7 +144,7 @@
                 </div>
             </a>
 
-            <a href="/guru" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
+            <a href="{{ url('/guru') }}" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
                 <div class="mr-4 p-3 rounded-lg bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors">
                     <span class="material-symbols-outlined text-primary text-[28px]" data-icon="school">school</span>
                 </div>
@@ -157,7 +157,7 @@
                 </div>
             </a>
 
-            <a href="/siswa" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
+            <a href="{{ url('/siswa') }}" class="role-card w-full flex items-start p-5 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm transition-all hover:bg-surface-container-low text-left group" onclick="selectRole(this)">
                 <div class="mr-4 p-3 rounded-lg bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors">
                     <span class="material-symbols-outlined text-primary text-[28px]" data-icon="person">person</span>
                 </div>

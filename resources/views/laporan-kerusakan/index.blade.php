@@ -8,18 +8,23 @@
     </div>
     
     <div class="flex flex-wrap items-center gap-3">
-        <a href="{{ route('laporan.kerusakan.preview') }}" target="_blank" class="px-4 py-2.5 border border-outline-variant bg-surface-container-lowest text-on-surface rounded-lg font-bold hover:bg-surface-container-low transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
-            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-            <span>Preview PDF</span>
-        </a>
-        <a href="{{ route('laporan.kerusakan.pdf') }}" class="px-4 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
-            <span class="material-symbols-outlined text-[18px]">download</span>
-            <span>Download PDF</span>
-        </a>
-        <a href="{{ route('laporan-kerusakan.create') }}" class="inline-flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md no-underline">
-            <span class="material-symbols-outlined text-[18px]">add_circle</span>
-            <span class="font-label-md text-label-md">Buat Laporan</span>
-        </a>
+    <a href="{{ route('laporan.kerusakan.preview') }}" target="_blank" class="px-4 py-2.5 border border-outline-variant bg-surface-container-lowest text-on-surface rounded-lg font-bold hover:bg-surface-container-low transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+        <span>Preview</span>
+    </a>
+    <a href="{{ route('laporan.kerusakan.pdf') }}" class="px-4 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">print</span>
+        <span>Cetak PDF</span>
+    </a>
+    {{-- TAMBAH INI --}}
+    <a href="{{ route('laporan.kerusakan.excel') }}" class="px-4 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-all text-sm no-underline flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">table_view</span>
+        <span>Cetak Excel</span>
+    </a>
+    <a href="{{ route('laporan-kerusakan.create') }}" class="inline-flex items-center justify-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md no-underline">
+        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+        <span class="font-label-md text-label-md">Buat Laporan</span>
+    </a>
     </div>
 </div>
 

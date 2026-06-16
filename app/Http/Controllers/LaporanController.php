@@ -7,6 +7,8 @@ use App\Models\Booking;
 use App\Models\Jadwal;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use DateTime;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanController extends Controller
 {
@@ -121,4 +123,69 @@ class LaporanController extends Controller
         
         return $pdf->stream('laporan-lab-' . $bulan . '-' . $tahun . '.pdf');
     }
+
+	/**
+ * Export Excel Penggunaan Laboratorium
+ */
+public function exportExcel(Request $request): StreamedResponse
+{
+    $bulan = $request->bulan ?? now()->month;
+    $tahun = $request->tahun ?? now()->year;
+    $data  = $this->getGabunganPenggunaan($bulan, $tahun);
+
+    $namaBulan = DateTime::createFromFormat('!m', $bulan)->format('F');
+    $filename  = 'laporan-penggunaan-' . $bulan . '-' . $tahun . '.csv';
+
+    $headers = [
+        'Content-Type'        => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ];
+
+    return response()->stream(function () use ($data, $namaBulan, $tahun) {
+        $file = fopen('php://output', 'w');
+
+        // BOM untuk Excel agar UTF-8 terbaca
+        fputs($file, "\xEF\xBB\xBF");
+
+        // Judul
+        fputcsv($file, ['Rekap Penggunaan Laboratorium']);
+        fputcsv($file, ['Periode: ' . $namaBulan . ' ' . $tahun]);
+        fputcsv($file, ['Dicetak: ' . now()->format('d F Y, H:i')]);
+        fputcsv($file, []); // baris kosong
+
+        // ── Jadwal Tetap ──
+        fputcsv($file, ['JADWAL TETAP']);
+        fputcsv($file, ['Hari', 'Slot Waktu', 'Guru/Pengajar', 'Kelas', 'Mata Pelajaran', 'Durasi (Jam)']);
+
+        foreach (collect($data)->where('tipe', 'Jadwal Rutin') as $item) {
+            fputcsv($file, [
+                $item['waktu'],
+                $item['jam'],
+                $item['pengguna'],
+                $item['keterangan'],
+                $item['agenda'],
+                $item['durasi_jam'],
+            ]);
+        }
+
+        fputcsv($file, []); // baris kosong
+
+        // ── Booking Disetujui ──
+        fputcsv($file, ['BOOKING DISETUJUI']);
+        fputcsv($file, ['Tanggal', 'Slot Waktu', 'Pengajar', 'Kelas', 'Kegiatan / Mapel', 'Durasi (Jam)']);
+
+        foreach (collect($data)->where('tipe', '!=', 'Jadwal Rutin') as $item) {
+            fputcsv($file, [
+                $item['waktu'],
+                $item['jam'],
+                $item['pengguna'],
+                $item['keterangan'],
+                $item['agenda'],
+                $item['durasi_jam'],
+            ]);
+        }
+
+        fclose($file);
+    }, 200, $headers);
+}
 }

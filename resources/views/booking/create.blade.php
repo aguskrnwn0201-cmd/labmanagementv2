@@ -84,7 +84,7 @@
                 <label class="block text-sm font-semibold text-on-surface-variant">Lembaga</label>
                 <div class="relative">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-xl">school</span>
-                    <input type="text" name="lembaga" value="{{ old('lembaga', 'SMK Negeri 1') }}" class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-md" placeholder="Nama Sekolah/Instansi" required>
+                    <input type="text" name="lembaga" value="{{ old('lembaga') }}" class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-md" placeholder="Nama Sekolah/Instansi" required>
                 </div>
             </div>
 
